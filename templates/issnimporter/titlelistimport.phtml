@@ -1,0 +1,41 @@
+<?php
+/**
+ * OntoWiki rdf upload import import template
+ */
+?>
+<fieldset class="activeForm" id="importdata">
+    <legend><?php echo $this->_('Upload an ISSN Titlelist (CSV File)') ?></legend>
+    <div class="width49 float margin">
+        <div>
+            <p class="messagebox info">To what kind of resource should the journals belong to?</p>
+            <input type="radio" class="radio" name="collectIn" id="contract" value="contract" checked="checked" />
+            <label for="contract" class="checkboxradio">A license contract</label>
+            <input type="radio" class="radio" name="collectIn" id="package" value="package" />
+            <label for="package" class="checkboxradio">A license package</label>
+        </div>
+    </div>
+    <div>
+        <p class="messagebox info">
+            <?php echo $this->_('Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, Title, Price') ?>
+        </p>
+    </div>
+    <div>
+        <label for="file-input">
+            <?php echo sprintf(
+                $this->_('File (max. %1$sB)'),
+                preg_replace('/([kMG])/', ' $1', ini_get('upload_max_filesize'))
+            ) ?>
+        </label>
+        <input type="file" id="file-input" name="source" />
+        <br class="clearall" />
+        <label for="delimiter-input"><?php echo $this->_('Field delimiter') ?></label>
+        <input type="text" class="text" size="1" maxlength="1" value=";" class="text" id="delimiter-input" name="delimiter" />
+        <br class="clearall"/>
+        <label for="enclosure-input"><?php echo $this->_('Field enclosure') ?></label>
+        <input type="text" class="text" size="1" maxlength="1" value='"' id="enclosure-input" name="enclosure" />
+        <br class="clearall"/>
+        <label for="label-input"><?php echo $this->_('Label for contract/package information') ?></label>
+        <input type="text" class="text" id="label-input" name="resourcelabel" />
+        <br class="clearall"/>
+    </div>
+</fieldset>
