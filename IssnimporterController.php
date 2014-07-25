@@ -160,10 +160,21 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                     $items.= '  dc:title ' . '"' . $title . '"  .' . PHP_EOL;
                     $data .= $mainResource . ' bibrm:hasItem ' . $itemUri . ' . ' . PHP_EOL;
-                    # if price exists, write price statements
+                    # if price exists, analyze value and write price statements
                     if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
                         foreach($price[0] as $value) {
-                        $items.= $itemUri . ' bibrm:price "' . $value . '" .' . PHP_EOL;
+                            # Check if price contains comma and replace with 
+                            # dot if so
+                            if (strpos($value,',')!==FALSE) {
+                                $value = str_replace(',','.',$value);
+                            # Check for missing dot too and build a valid price
+                            } else {
+                                if (strpos($value,'.')===FALSE) {
+                                    $value.= '.00';
+                                }
+                            }
+                            $items.= $itemUri . ' bibrm:price "' . $value .
+                                '"^^xsd:decimal .' . PHP_EOL;
                         }
                     }
 
@@ -174,7 +185,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
                 }
 
                 # Search for PISSN
-                # Found an PISSN
                 if (preg_match_all('/\d{4}\-\d{3}[\dxX]/',$csvLine[0],$pissn)) {
                     # If no EISSN was found, create URI with PISSN and write 
                     # statements
@@ -197,12 +207,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
                 } else {
                     continue;
                 }
-                //OntoWiki::getInstance()->logger->debug("CSV-TEST: CSV Line: " . var_export($lineCount, true)) . PHP_EOL;
-                //OntoWiki::getInstance()->logger->debug("CSV-TEST: CSV LineData: " . var_export($csvLine, true)) . PHP_EOL;
             }
         }
         $data.= $items;
-        OntoWiki::getInstance()->logger->debug("CSV-TEST: gelesene Zeilen: " . var_export(count($data), true)) . PHP_EOL;
 
         $importFile = tempnam(sys_get_temp_dir(), 'ow');
         $tmp = fopen($importFile, 'wb');
