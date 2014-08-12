@@ -66,8 +66,16 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $filesArray = $upload->getFileInfo();
             $delimiter = $post['delimiter'];
             $enclosure = $post['enclosure'];
+            $year = $post['validityyear'];
             $label = $post['resourcelabel'];
-            $targetResource = $post['collectIn'];
+            $targetType = $post['collectIn'];
+            $targetResource = $post['existendResource'];
+            # Check for valid year
+            if (preg_match_all('/[2][01]\d{2}/',$post['validityyear'],$result)) {
+                $year = $result[0][0];
+            } else {
+                $year = date("Y");
+            }
 
             $message = '';
             switch (true) {
@@ -112,6 +120,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             return;
         }
 
+
         $modelIri = (string)$this->_model;
         $hash = md5(date(DATE_ATOM)) ;
         # Write prefixes
@@ -124,18 +133,31 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $data.= '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . ' . PHP_EOL;
         $data.= PHP_EOL;
         $xsdDateTime = date('Y-m-d') . 'T' . date('H:i:s');
-        $mainResource = '<' . $modelIri . 'resource/' .  $targetResource . '/' .  $hash . '>';
-        if ($targetResource === 'package') {
-            $data.= $mainResource . ' a bibrm:LicensePackage .'. PHP_EOL;
+
+        # set a flag for writing labels of contract/package resource
+        $writeLabel = true;
+
+        if ($targetResource != "" && Erfurt_Uri::check($targetResource)) {
+            $mainResource = '<' . $targetResource . '>';
+            $writeLabel = false;
         } else {
-            $data.= $mainResource . ' a bibrm:LicenseContract .'. PHP_EOL;
+            $mainResource = '<' . $modelIri . 'resource/' .  $targetType . '/' .  $hash . '>';
+
+            if ($targetType === 'package') {
+                $data.= $mainResource . ' a bibrm:LicensePackage .'. PHP_EOL;
+            } else {
+                $data.= $mainResource . ' a bibrm:LicenseContract .'. PHP_EOL;
+            }
         }
 
-        if (isset($label) && $label !== '') {
-            $data.= $mainResource . ' rdfs:label "' . $label . '" . ' . PHP_EOL;
-        } else {
-            $data.= $mainResource . ' rdfs:label "Ein license ' . $targetResource . '".' . PHP_EOL;
+        if ($writeLabel === false) {
+            if (isset($label) && $label !== '') {
+                $data.= $mainResource . ' rdfs:label "' . $label . '" . ' . PHP_EOL;
+            } else {
+                $data.= $mainResource . ' rdfs:label "Ein license ' . $targetType . '".' . PHP_EOL;
+            }
         }
+
         $data.= $mainResource . ' dct:created  "' . $xsdDateTime . '"^^xsd:dateTime .' . PHP_EOL;
 
         $items = '';
@@ -158,7 +180,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     $itemUri =  'item:' . $eissn[0][0] ;
                     $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
                     $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
-                    $items.= '  dc:title ' . '"' . $title . '"  .' . PHP_EOL;
+                    $items.= '  rdfs:label ' . '"' . $title . '(' . $year .')"  .' . PHP_EOL;
                     $data .= $mainResource . ' bibrm:hasItem ' . $itemUri . ' . ' . PHP_EOL;
                     # if price exists, analyze value and write price statements
                     if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
@@ -188,11 +210,12 @@ class IssnimporterController extends OntoWiki_Controller_Component
                 if (preg_match_all('/\d{4}\-\d{3}[\dxX]/',$csvLine[0],$pissn)) {
                     # If no EISSN was found, create URI with PISSN and write 
                     # statements
-                    if (!$foundEISSN) {
+                    if ($foundEISSN === false) {
                         $itemUri = 'item:' . $pissn[0][0];
                         $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
                         $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
-                        $items.= '  dc:title ' . '"' . $title . '"  .' . PHP_EOL;
+                        $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
+                        $data .= $mainResource . ' bibrm:hasItem ' . $itemUri . ' . ' . PHP_EOL;
                         # if price exists, write price statements
                         if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
                             foreach($price[0] as $value) {

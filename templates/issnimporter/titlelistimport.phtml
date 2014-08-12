@@ -14,6 +14,7 @@
             <label for="package" class="checkboxradio">A license package</label>
         </div>
     </div>
+    </br>
     <div>
         <p class="messagebox info">
             <?php echo $this->_('Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, Title, Price') ?>
@@ -28,6 +29,11 @@
         </label>
         <input type="file" id="file-input" name="source" />
         <br class="clearall" />
+    </br>
+        <p class="messagebox info">Please give a URI of an existend resource that should contain the contract items</p>
+        <label for="delimiter-input"><?php echo $this->_('Existend Resource') ?></label>
+        <input type="text" class="text" size="100" maxlength="100" value="" class="text" id="resource-input" name="existendResource" />
+        <br class="clearall"/>
         <label for="delimiter-input"><?php echo $this->_('Field delimiter') ?></label>
         <input type="text" class="text" size="1" maxlength="1" value=";" class="text" id="delimiter-input" name="delimiter" />
         <br class="clearall"/>
@@ -36,6 +42,9 @@
         <br class="clearall"/>
         <label for="label-input"><?php echo $this->_('Label for contract/package information') ?></label>
         <input type="text" class="text" id="label-input" name="resourcelabel" />
+        <br class="clearall"/>
+        <label for="label-input"><?php echo $this->_('Validity year') ?></label>
+        <input type="text" class="text" size="4" maxlength="4" value='<?php echo date("Y")+1 ?>' id="year-input" name="validityyear" />
         <br class="clearall"/>
     </div>
 </fieldset>
