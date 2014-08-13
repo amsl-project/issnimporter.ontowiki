@@ -137,7 +137,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
         # set a flag for writing labels of contract/package resource
         $writeLabel = true;
 
-        if ($targetResource != "" && Erfurt_Uri::check($targetResource)) {
+        echo "targetResource: " . $targetResource . PHP_EOL;
+        if ($targetResource !== "" && Erfurt_Uri::check($targetResource)) {
             $mainResource = '<' . $targetResource . '>';
             $writeLabel = false;
         } else {
@@ -150,7 +151,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             }
         }
 
-        if ($writeLabel === false) {
+        if ($writeLabel === true) {
             if (isset($label) && $label !== '') {
                 $data.= $mainResource . ' rdfs:label "' . $label . '" . ' . PHP_EOL;
             } else {
@@ -180,7 +181,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     $itemUri =  'item:' . $eissn[0][0] ;
                     $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
                     $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
-                    $items.= '  rdfs:label ' . '"' . $title . '(' . $year .')"  .' . PHP_EOL;
+                    $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
                     $data .= $mainResource . ' bibrm:hasItem ' . $itemUri . ' . ' . PHP_EOL;
                     # if price exists, analyze value and write price statements
                     if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
