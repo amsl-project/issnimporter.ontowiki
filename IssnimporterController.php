@@ -147,7 +147,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             if ($targetType === 'package') {
                 $data.= $mainResource . ' a bibrm:LicensePackage .'. PHP_EOL;
             } else {
-                $data.= $mainResource . ' a bibrm:LicenseContract .'. PHP_EOL;
+                $data.= $mainResource . ' a bibrm:AnnualContractData .'. PHP_EOL;
             }
         }
 
