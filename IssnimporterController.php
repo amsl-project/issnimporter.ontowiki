@@ -162,12 +162,13 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $data.= $mainResource . ' dct:created  "' . $xsdDateTime . '"^^xsd:dateTime .' . PHP_EOL;
 
         $items = '';
-        $importedLines = 0;
+        $errorCount = 0;
+        $lineNumber = 0;
         foreach ($csvData as $csvLine) {
-            $importedLines++;
-            $lineCount = count($csvLine);
+            $lineNumber++;
             $foundEISSN = false;
-            if ($lineCount == 4) {
+            $columnCount = count($csvLine);
+            if ($columnCount >= 4) {
                 $title = trim($csvLine[2]);
                 $price = preg_split('/\d+([\.,]\d+)?/',$csvLine[3]);
 
@@ -231,8 +232,25 @@ class IssnimporterController extends OntoWiki_Controller_Component
                 } else {
                     continue;
                 }
+            } else {
+                $errorCount++;
+                if ($errorCount === 1) {
+                    $ignoredLines = $lineNumber ;
+                } else {
+                    $ignoredLines.= ", " . $lineNumber ;
+                }
             }
         }
+
+        if ($errorCount === count($csvData)) {
+            $this->_owApp->appendErrorMessage("Nothing was imported. Please check the content of your CSV file, there are not enough columns or the seperator might be wrong.");
+            return;
+        } elseif ($errorCount === 1) {
+            $this->_owApp->appendInfoMessage("Some data imported, but line " . $ignoredLines . " ignored due to missing columns or wrong seperators.");
+        } elseif ($errorCount > 1) {
+            $this->_owApp->appendInfoMessage("Some data imported, but lines " . $ignoredLines . "ignored due to missing columns or wrong seperators.");
+        }
+
         $data.= $items;
 
         $importFile = tempnam(sys_get_temp_dir(), 'ow');
