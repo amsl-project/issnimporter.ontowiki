@@ -183,7 +183,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
                     $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                     $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
-                    $data .= $mainResource . ' bibrm:hasItem ' . $itemUri . ' . ' . PHP_EOL;
+                    $data .= $mainResource . ' bibrm:contractItem ' . $itemUri . ' . ' . PHP_EOL;
                     # if price exists, analyze value and write price statements
                     if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
                         foreach($price[0] as $value) {
@@ -191,20 +191,20 @@ class IssnimporterController extends OntoWiki_Controller_Component
                             # dot if so
                             if (strpos($value,',')!==FALSE) {
                                 $value = str_replace(',','.',$value);
-                            # Check for missing dot too and build a valid price
+                            # Check for missing dot and build a valid price
                             } else {
                                 if (strpos($value,'.')===FALSE) {
                                     $value.= '.00';
                                 }
                             }
-                            $items.= $itemUri . ' bibrm:price "' . $value .
+                            $items.= $itemUri . ' bibrm:itemPrice "' . $value .
                                 '"^^xsd:decimal .' . PHP_EOL;
                         }
                     }
 
                     # write statements linking to found EISSNs
                     foreach ($eissn[0] as $value) {
-                        $items.= $itemUri . ' bibrm:EISSN <urn:ISSN:' . $value . '> .' . PHP_EOL;
+                        $items.= $itemUri . ' bibrm:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
                     }
                 }
 
@@ -217,17 +217,17 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
                         $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                         $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
-                        $data .= $mainResource . ' bibrm:hasItem ' . $itemUri . ' . ' . PHP_EOL;
+                        $data .= $mainResource . ' bibrm:contractItem ' . $itemUri . ' . ' . PHP_EOL;
                         # if price exists, write price statements
                         if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
                             foreach($price[0] as $value) {
-                            $items.= $itemUri . ' bibrm:price "' . $value . '" .' . PHP_EOL;
+                            $items.= $itemUri . ' bibrm:itemPrice "' . $value . '" .' . PHP_EOL;
                             }
                         }
                     }
                     # write statements linking to found PISSNs
                     foreach ($pissn[0] as $value) {
-                        $items.= $itemUri . ' bibrm:PISSN <urn:ISSN:' . $value . '> .' .PHP_EOL;
+                        $items.= $itemUri . ' bibrm:pissn <urn:ISSN:' . $value . '> .' .PHP_EOL;
                     }
                 } else {
                     continue;
