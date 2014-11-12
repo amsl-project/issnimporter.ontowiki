@@ -2,22 +2,28 @@
 /**
  * OntoWiki rdf upload import import template
  */
+$translate = OntoWiki::getInstance()->translate;
 ?>
 <fieldset class="activeForm" id="importdata">
-    <legend><?php echo $this->_('Upload an ISSN Titlelist (CSV File)') ?></legend>
+    <legend><?php echo $this->_('Upload list of journal titles from CSV file') ?></legend>
     <div class="width49 float margin">
         <div>
-            <p class="messagebox info">To what kind of resource should the journals belong to?</p>
-            <input type="radio" class="radio" name="collectIn" id="contract" value="contract" checked="checked" />
-            <label for="contract" class="checkboxradio">A license contract</label>
-            <input type="radio" class="radio" name="collectIn" id="package" value="package" />
-            <label for="package" class="checkboxradio">A license package</label>
+        <p class="messagebox info"><?php echo $translate->translate('Please select if the journals should belong to a license package or should be attached to the annual contract data directly?') ?></p>
+            <label for="package" class="checkboxradio"><?php echo $translate->translate('New license package') ?>
+                <input type="radio" class="radio" name="collectIn" id="package" value="package" />
+            </label>
+            <label for="contract" class="checkboxradio"><?php echo $translate->translate('New annual contract data') ?>
+                <input type="radio" class="radio" name="collectIn" id="contract" value="contract" checked="checked" />
+            </label>
+            <label for="package" class="checkboxradio"><?php echo $translate->translate('Link to existent resource') ?>
+                <input type="radio" class="radio" name="collectIn" id="existent" value="existent" />
+            </label>
         </div>
     </div>
     </br>
     <div>
         <p class="messagebox info">
-            <?php echo $this->_('Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, Title, Price') ?>
+            <?php echo $this->_($translate->translate('Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, Title, Price')) ?>
         </p>
     </div>
     <div>
@@ -30,14 +36,14 @@
         <input type="file" id="file-input" name="source" />
         <br class="clearall" />
     </br>
-        <p class="messagebox info">Please give a URI of an existend resource that should contain the contract items</p>
-        <label for="delimiter-input"><?php echo $this->_('Existend Resource') ?></label>
+        <p class="messagebox info"><?php echo $this->_('Please give a URI of an existent resource that should contain the contract items') ?></p>
+        <label for="delimiter-input"><?php echo $this->_($translate->translate('Existent Resource')) ?></label>
         <input type="text" class="text" size="300" maxlength="300" value="" class="text" id="resource-input" name="existendResource" />
         <br class="clearall"/>
-        <label for="delimiter-input"><?php echo $this->_('Field delimiter') ?></label>
+        <label for="delimiter-input"><?php echo $this->_($translate->translate('Field delimiter')) ?></label>
         <input type="text" class="text" size="1" maxlength="1" value=";" class="text" id="delimiter-input" name="delimiter" />
         <br class="clearall"/>
-        <label for="enclosure-input"><?php echo $this->_('Field enclosure') ?></label>
+        <label for="enclosure-input"><?php echo $this->_($translate->translate('Field enclosure')) ?></label>
         <input type="text" class="text" size="1" maxlength="1" value='"' id="enclosure-input" name="enclosure" />
         <br class="clearall"/>
         <label for="label-input"><?php echo $this->_('Label for contract/package information') ?></label>
