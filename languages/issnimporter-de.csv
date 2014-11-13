@@ -9,5 +9,6 @@ Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
 Label for contract/package information;Label für Vertrags- bzw. Paketinformationen
 Validity year;Gültigkeitsjahr
-Upload list of journal titles from CSV file;Zeitschriftentitelliste aus CSV-Datei importieren
-
+CSV import settings;CSV-Einstellungen
+Upload list of journal titles from CSV file;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren
+Import a titlelist of journals with csv upload;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren

@@ -29,11 +29,12 @@ class IssnimporterPlugin extends OntoWiki_Plugin
      */
     private function provideImportActions($event)
     {
+        $translate = OntoWiki::getInstance()->translate;
         $myImportActions = array(
             'issnimporter-titlelist' => array(
                 'controller' => 'issnimporter',
                 'action' => 'titlelistimport',
-                'label' => 'Import an ISSN titlelist with csv upload',
+                'label' => $translate->translate('Import a titlelist of journals with csv upload'),
                 'description' => 'Tries to generate triples out of a csv file containing ' .
                     ' PISSN, EISSN, title and (optional) price (in that order)'
             )

@@ -50,6 +50,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             array('name' => 'Cancel', 'id' => 'importdata')
         );
         $this->view->placeholder('main.window.toolbar')->set($toolbar);
+        OntoWiki::getInstance()->getNavigation()->disableNavigation();
 
         if ($this->_request->isPost()) {
             $this->_post = $this->_request->getPost();
