@@ -287,6 +287,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $this->_erfurt->getStore()->importRdf($modelIri, $fileOrUrl, 'ttl', $locator);
             // stopping action
             $versioning->endAction(); 
+            // Trigger Reindex
+            $indexEvent = new Erfurt_Event('onFullreindexAction');
+            $indexEvent->trigger();
         } catch (Erfurt_Exception $e) {
             // re-throw
             throw new OntoWiki_Controller_Exception(
