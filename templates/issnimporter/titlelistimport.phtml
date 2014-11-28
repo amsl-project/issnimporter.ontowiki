@@ -8,7 +8,7 @@ $translate = OntoWiki::getInstance()->translate;
     <legend><?php echo $this->_($translate->translate('Upload list of journal titles from CSV file')) ?></legend>
     <div class="width49 float margin">
         <div>
-            <p class="messagebox info"><?php echo $translate->translate('Please select if the journals should belong to a license package or should be attached to the annual contract data directly?') ?></p>
+            <p class="messagebox info"><?php echo $translate->translate('Please select if the journals should belong to a license package or should be attached to the annual contract data directly.') ?></p>
             <label for="package" class="checkboxradio"><?php echo $translate->translate('New license package') ?>
                 <input type="radio" class="radio" name="collectIn" id="package" value="package" />
             </label>
@@ -26,15 +26,15 @@ $translate = OntoWiki::getInstance()->translate;
             </label>
         </div>
         <div>
-            <p class="messagebox info"><?php echo $this->_('Please give a URI of an existent resource that should contain the contract items') ?></p>
-            <label for="delimiter-input"><?php echo $this->_($translate->translate('Existent Resource')) ?></label>
+            <p class="messagebox info"><?php echo $this->_('Please give a URI of an existent resource that should contain the contract items.') ?></p>
+            <label for="delimiter-input"><?php echo $this->_($translate->translate('Existent resource')) ?></label>
             <input type="text" class="text" size="300" maxlength="300" value="" class="text" id="resource-input" name="existendResource" />
             <br class="clearall"/>
             <br class="clearall"/>
         </div>
         <div>
             <p class="messagebox info">
-                <?php echo $this->_($translate->translate('Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, Title, Price')) ?>
+                <?php echo $this->_($translate->translate('Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, title, price.')) ?>
             </p>
         </div>
         <div>

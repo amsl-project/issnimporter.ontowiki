@@ -1,13 +1,13 @@
-Please select if the journals should belong to a license package or should be attached to the annual contract data directly?;Bitte wählen Sie, ob die Titel einem Lizezpaket oder direkt den Vertragsjahresdaten zugeordnet werden sollen.
+Please select if the journals should belong to a license package or should be attached to the annual contract data directly.;Bitte wählen Sie, ob die Titel einem Lizenzpaket oder direkt den Vertragsjahresdaten zugeordnet werden sollen.
 New annual contract data;Neue Vertragsjahresdaten
-New license package;Neues Lizenspaket
+New license package;Neues Lizenzpaket
 Link to existent resource;Mit vorhandener Ressource verknüpfen
-Existent Resource;Vorhandene Ressource
-Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, Title, Price;Bitte wählen Sie die CSV-Datei aus. Die Reihenfolge wird wiefolgt erwartet: PISSN, EISSN, Titel, Preis
-Please give a URI of an existent resource that should contain the contract items;Bitte die URI einer vorhanden Resource eintragen, falls die Titel dieser angehangen werden sollen.
+Existent resource;Vorhandene Ressource
+Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, title, price.;Bitte wählen Sie die CSV-Datei aus. Die Reihenfolge wird wie folgt erwartet: PISSN, EISSN, Titel, Preis.
+Please give a URI of an existent resource that should contain the contract items.;Bitte die URI einer vorhanden Ressource eintragen, falls die Titel dieser angehangen werden sollen.
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
-Label for contract/package information;Label für Vertrags- bzw. Paketinformationen
+Label for contract/package information;Bezeichnung für Vertrags- bzw. Paketinformationen
 Validity year;Gültigkeitsjahr
 CSV import settings;CSV-Einstellungen
 Upload list of journal titles from CSV file;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren
