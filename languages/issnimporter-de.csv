@@ -3,7 +3,7 @@ New annual contract data;Neue Vertragsjahresdaten
 New license package;Neues Lizenzpaket
 Link to existent resource;Mit vorhandener Ressource verknüpfen
 Existent resource;Vorhandene Ressource
-Please select a CSV File to import. Expected order of columns will be: PISSN, EISSN, title, price.;Bitte wählen Sie die CSV-Datei aus. Die Reihenfolge wird wie folgt erwartet: PISSN, EISSN, Titel, Preis.
+Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: PISSN, EISSN, title, price.;Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Die Reihenfolge wird wie folgt erwartet: PISSN, EISSN, Titel, Preis.
 Please give a URI of an existent resource that should contain the contract items.;Bitte die URI einer vorhanden Ressource eintragen, falls die Titel dieser angehangen werden sollen.
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
