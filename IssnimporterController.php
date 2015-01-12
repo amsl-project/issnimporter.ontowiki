@@ -126,7 +126,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $hash = md5(date(DATE_ATOM)) ;
         # Write prefixes
         $data = '@prefix item: <' . $modelIri . 'resource/' . 'item/' . $hash . '/> .' . PHP_EOL;
-        $data.= '@prefix bibrm: <http://vocab.ub.uni-leipzig.de/bibrm/> . ' . PHP_EOL;
+        $data.= '@prefix amsl: <http://vocab.ub.uni-leipzig.de/amsl/> . ' . PHP_EOL;
         $data.= '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . ' . PHP_EOL;
         $data.= '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . ' . PHP_EOL;
         $data.= '@prefix dc: <http://purl.org/dc/elements/1.1/> . ' . PHP_EOL;
@@ -146,9 +146,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $mainResource = '<' . $modelIri . 'resource/' .  $targetType . '/' .  $hash . '>';
 
             if ($targetType === 'package') {
-                $data.= $mainResource . ' a bibrm:LicensePackage .'. PHP_EOL;
+                $data.= $mainResource . ' a amsl:LicensePackage .'. PHP_EOL;
             } else {
-                $data.= $mainResource . ' a bibrm:AnnualContractData .'. PHP_EOL;
+                $data.= $mainResource . ' a amsl:AnnualContractData .'. PHP_EOL;
             }
         }
 
@@ -181,8 +181,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     # Found an EISSN, create URI and write first statemntes
                     $foundEISSN = true;
                     $itemUri =  'item:' . $eissn[0][0] ;
-                    $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
-                    $items.= '  bibrm:contractItemOf ' . $mainResource . ' ;'. PHP_EOL;
+                    $items.= $itemUri . ' a amsl:ContractItem ;' .PHP_EOL;
+                    $items.= '  amsl:contractItemOf ' . $mainResource . ' ;'. PHP_EOL;
                     $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                     $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
                     # if price exists, analyze value and write price statements
@@ -198,14 +198,14 @@ class IssnimporterController extends OntoWiki_Controller_Component
                                     $value.= '.00';
                                 }
                             }
-                            $items.= $itemUri . ' bibrm:itemPrice "' . $value .
+                            $items.= $itemUri . ' amsl:itemPrice "' . $value .
                                 '"^^xsd:decimal .' . PHP_EOL;
                         }
                     }
 
                     # write statements linking to found EISSNs
                     foreach ($eissn[0] as $value) {
-                        $items.= $itemUri . ' bibrm:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
+                        $items.= $itemUri . ' amsl:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
                     }
                 }
 
@@ -215,20 +215,20 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     # statements
                     if ($foundEISSN === false) {
                         $itemUri = 'item:' . $pissn[0][0];
-                        $items.= $itemUri . ' a bibrm:ContractItem ;' .PHP_EOL;
-                        $items.= '  bibrm:contractItemOf ' . $mainResource . ' ;'. PHP_EOL;
+                        $items.= $itemUri . ' a amsl:ContractItem ;' .PHP_EOL;
+                        $items.= '  amsl:contractItemOf ' . $mainResource . ' ;'. PHP_EOL;
                         $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                         $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
                         # if price exists, write price statements
                         if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
                             foreach($price[0] as $value) {
-                            $items.= $itemUri . ' bibrm:itemPrice "' . $value . '" .' . PHP_EOL;
+                            $items.= $itemUri . ' amsl:itemPrice "' . $value . '" .' . PHP_EOL;
                             }
                         }
                     }
                     # write statements linking to found PISSNs
                     foreach ($pissn[0] as $value) {
-                        $items.= $itemUri . ' bibrm:pissn <urn:ISSN:' . $value . '> .' .PHP_EOL;
+                        $items.= $itemUri . ' amsl:pissn <urn:ISSN:' . $value . '> .' .PHP_EOL;
                     }
                 } else {
                     continue;
