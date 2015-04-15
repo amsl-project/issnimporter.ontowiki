@@ -85,6 +85,16 @@ class IssnimporterController extends OntoWiki_Controller_Component
                 $year = date("Y");
             }
 
+            if ($targetType === 'existent' &&
+                ($targetResource === '' || !(Erfurt_Uri::check($targetResource)))
+            ) {
+                $this->_owApp->appendErrorMessage($this->_translate->translate(
+                    'The value for existent resource is empty or wrong. Please check the value ' .
+                    'and try again.')
+                );
+                return;
+            }
+
             $message = '';
             switch (true) {
                 case empty($filesArray):
@@ -130,8 +140,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
 
 
         $modelIri = (string)$this->_model;
-        $hash = md5(date('C')) ;
-        $item = $modelIri . 'resource/item/' . $hash;
+        $hash = md5(rand()) ;
+        $item = $modelIri . 'resource/item/' . $hash . '/';
         $xsdDateTime = date('Y-m-d') . 'T' . date('H:i:s');
 
         # set a flag for writing labels of contract/package resource
@@ -290,7 +300,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     if (isset($eisbn[0])) {
                         foreach ($eisbn[0] as $value) {
                             $items .= $itemUri . ' amsl:eisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
-                            $data[$itemUri][$nsAmsl . 'eispn'][] = array(
+                            $data[$itemUri][$nsAmsl . 'eisbn'][] = array(
                                 'type' => 'uri',
                                 'value' => 'urn:ISBN:' . $value
                             );
