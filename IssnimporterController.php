@@ -18,6 +18,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
 {
     private $_model = null;
     private $_post = null;
+    private $_translate = null;
 
     /**
      * init() Method to init() normal and add tabbed Navigation
@@ -33,6 +34,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $this->view->formMethod       = 'post';
         $this->view->formName         = 'importdata';
         $this->view->supportedFormats = $this->_erfurt->getStore()->getSupportedImportFormats();
+        $this->_translate             = $this->_owApp->translate;
 
         if (!$this->isSelectedModelEditable()) {
             return;
@@ -62,6 +64,10 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $this->view->placeholder('main.window.title')->set('Upload CSV title list');
 
         if ($this->_request->isPost()) {
+            $data = array();
+            $nsAmsl = 'http://vocab.ub.uni-leipzig.de/amsl/';
+            $nsDct = 'http://purl.org/dc/terms/';
+            $nsXsd    = 'http://www.w3.org/2001/XMLSchema#';
             $post = $this->_request->getPost();
             $upload = new Zend_File_Transfer();
             $filesArray = $upload->getFileInfo();
@@ -71,6 +77,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $label = $post['resourcelabel'];
             $targetType = $post['collectIn'];
             $targetResource = $post['existendResource'];
+            $regISBN = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
             # Check for valid year
             if (preg_match_all('/[2][01]\d{2}/',$post['validityyear'],$result)) {
                 $year = $result[0][0];
@@ -123,44 +130,51 @@ class IssnimporterController extends OntoWiki_Controller_Component
 
 
         $modelIri = (string)$this->_model;
-        $hash = md5(date(DATE_ATOM)) ;
-        # Write prefixes
-        $data = '@prefix item: <' . $modelIri . 'resource/' . 'item/' . $hash . '/> .' . PHP_EOL;
-        $data.= '@prefix amsl: <http://vocab.ub.uni-leipzig.de/amsl/> . ' . PHP_EOL;
-        $data.= '@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> . ' . PHP_EOL;
-        $data.= '@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> . ' . PHP_EOL;
-        $data.= '@prefix dc: <http://purl.org/dc/elements/1.1/> . ' . PHP_EOL;
-        $data.= '@prefix dct: <http://purl.org/dc/terms/> . ' . PHP_EOL;
-        $data.= '@prefix xsd: <http://www.w3.org/2001/XMLSchema#> . ' . PHP_EOL;
-        $data.= PHP_EOL;
+        $hash = md5(date('C')) ;
+        $item = $modelIri . 'resource/item/' . $hash;
         $xsdDateTime = date('Y-m-d') . 'T' . date('H:i:s');
 
         # set a flag for writing labels of contract/package resource
         $writeLabel = true;
 
-        echo "targetResource: " . $targetResource . PHP_EOL;
         if ($targetResource !== "" && Erfurt_Uri::check($targetResource)) {
-            $mainResource = '<' . $targetResource . '>';
+            $mainResource = $targetResource ;
             $writeLabel = false;
         } else {
-            $mainResource = '<' . $modelIri . 'resource/' .  $targetType . '/' .  $hash . '>';
+            $mainResource = $modelIri . 'resource/' .  $targetType . '/' .  $hash ;
 
             if ($targetType === 'package') {
-                $data.= $mainResource . ' a amsl:LicensePackage .'. PHP_EOL;
+                $data[$mainResource][EF_RDF_TYPE][] = array(
+                    'type' => 'uri',
+                    'value' => $nsAmsl . 'LicensePackage'
+                );
             } else {
-                $data.= $mainResource . ' a amsl:AnnualContractData .'. PHP_EOL;
+                $data[$mainResource][EF_RDF_TYPE][] = array(
+                    'type' => 'uri',
+                    'value' => $nsAmsl . 'AnnualContractData'
+                );
             }
         }
 
         if ($writeLabel === true) {
             if (isset($label) && $label !== '') {
-                $data.= $mainResource . ' rdfs:label "' . $label . '" . ' . PHP_EOL;
+                $data[$mainResource][EF_RDFS_LABEL][] = array(
+                    'type' => 'literal',
+                    'value' => $label
+                );
             } else {
-                $data.= $mainResource . ' rdfs:label "Ein license ' . $targetType . '".' . PHP_EOL;
+                $data[$mainResource][EF_RDFS_LABEL][] = array(
+                    'type' => 'literal',
+                    'value' => '"Ein license ' . $targetType
+                );
             }
         }
 
-        $data.= $mainResource . ' dct:created  "' . $xsdDateTime . '"^^xsd:dateTime .' . PHP_EOL;
+        $data[$mainResource][$nsDct . 'created'][] = array(
+            'type' => 'literal',
+            'datatype' => $nsXsd . 'dateTime',
+            'value' => $xsdDateTime
+        );
 
         $items = '';
         $errorCount = 0;
@@ -168,31 +182,86 @@ class IssnimporterController extends OntoWiki_Controller_Component
         foreach ($csvData as $csvLine) {
             $lineNumber++;
             $foundEISSN = false;
+            $foundEISBN = false;
+            $foundPISSN = false;
+            $foundPISBN = false;
+            $itemUri    = '';
             $columnCount = count($csvLine);
             if ($columnCount >= 4) {
                 $title = trim($csvLine[2]);
-                $price = preg_split('/\d+([\.,]\d+)?/',$csvLine[3]);
 
                 # Create a 'unique' URI so the same ISSN can be used in other 
                 # contracts/packages/packages/packages/packages/packages/packages/packages again
 
-                # Search for EISSN
-                if (preg_match_all('/\d{4}\-\d{3}[\dxX]/',$csvLine[1],$eissn)) {
+                # Search for E-ISSN
+                if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[1], $eissn)) {
                     # Found an EISSN, create URI and write first statemntes
                     $foundEISSN = true;
-                    $itemUri =  'item:' . $eissn[0][0] ;
-                    $items.= $itemUri . ' a amsl:ContractItem ;' .PHP_EOL;
-                    $items.= '  amsl:contractItemOf ' . $mainResource . ' ;'. PHP_EOL;
-                    $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
-                    $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
-                    # if price exists, analyze value and write price statements
+                    $itemUri = $item . $eissn[0][0];
+                }
+
+                # Search for E-ISBN
+                if (preg_match_all($regISBN, str_replace('-', '', $csvLine[1]), $eisbn)) {
+                    # Found an EISSN, create URI and write first statemntes
+                    $foundEISBN = true;
+                    if ($foundEISSN === true) {
+                        $foundEISSN = false;
+                        $eissn = null;
+                    }
+                    $itemUri = $item . $eisbn[0][0];
+                }
+
+                # Search for P-ISSN
+                if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[0], $pissn)) {
+                    $foundPISSN = true;
+                    if ($foundEISSN === false) {
+                        $itemUri = $item . $pissn[0][0];
+                    }
+                }
+
+                # Search for P-ISBN
+                if (preg_match_all($regISBN, str_replace('-', '', $csvLine[0]), $pisbn)) {
+                    $foundPISBN = true;
+                    if ($foundEISBN === false) {
+                        $itemUri = $item . $pisbn[0][0];
+                    }
+                    if ($foundPISSN === true) {
+                        $foundPISSN = false;
+                        $pissn = null;
+                    }
+                }
+
+                # If identifier were found go on
+                if ($itemUri !== '') {
+                    $items .= $itemUri . ' a amsl:ContractItem ;' . PHP_EOL;
+                    $data[$itemUri][EF_RDF_TYPE][] = array(
+                        'type' => 'uri',
+                        'value' => $nsAmsl . 'ContractItem'
+                    );
+                    $items .= '  amsl:contractItemOf ' . $mainResource . ' ;' . PHP_EOL;
+                    $data[$itemUri][$nsAmsl . 'contractItemOf'][] = array(
+                        'type' => 'uri',
+                        'value' => $mainResource
+                    );
+                    $items .= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
+                    $data[$itemUri][$nsDct . 'created'][] = array(
+                        'type' => 'literal',
+                        'datatype' => $nsXsd . 'dateTime',
+                        'value' => $xsdDateTime
+                    );
+                    $items .= '  rdfs:label ' . '"' . $title . ' (' . $year . ')"  .' . PHP_EOL;
+                    $data[$itemUri][EF_RDFS_LABEL][] = array(
+                        'type' => 'literal',
+                        'value' => $title . ' (' . $year . ')'
+                    );
+
                     if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
                         foreach($price[0] as $value) {
-                            # Check if price contains comma and replace with 
+                            # Check if price contains comma and replace with
                             # dot if so
                             if (strpos($value,',')!==FALSE) {
                                 $value = str_replace(',','.',$value);
-                            # Check for missing dot and build a valid price
+                                # Check for missing dot and build a valid price
                             } else {
                                 if (strpos($value,'.')===FALSE) {
                                     $value.= '.00';
@@ -200,35 +269,53 @@ class IssnimporterController extends OntoWiki_Controller_Component
                             }
                             $items.= $itemUri . ' amsl:itemPrice "' . $value .
                                 '"^^xsd:decimal .' . PHP_EOL;
+                            $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
+                                'type' => 'literal',
+                                'value' => $value
+                            );
                         }
                     }
 
                     # write statements linking to found EISSNs
-                    foreach ($eissn[0] as $value) {
-                        $items.= $itemUri . ' amsl:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
-                    }
-                }
-
-                # Search for PISSN
-                if (preg_match_all('/\d{4}\-\d{3}[\dxX]/',$csvLine[0],$pissn)) {
-                    # If no EISSN was found, create URI with PISSN and write 
-                    # statements
-                    if ($foundEISSN === false) {
-                        $itemUri = 'item:' . $pissn[0][0];
-                        $items.= $itemUri . ' a amsl:ContractItem ;' .PHP_EOL;
-                        $items.= '  amsl:contractItemOf ' . $mainResource . ' ;'. PHP_EOL;
-                        $items.= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
-                        $items.= '  rdfs:label ' . '"' . $title . ' (' . $year .')"  .' . PHP_EOL;
-                        # if price exists, write price statements
-                        if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
-                            foreach($price[0] as $value) {
-                            $items.= $itemUri . ' amsl:itemPrice "' . $value . '" .' . PHP_EOL;
-                            }
+                    if (isset($eissn[0])) {
+                        foreach ($eissn[0] as $value) {
+                            $items .= $itemUri . ' amsl:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
+                            $data[$itemUri][$nsAmsl . 'eissn'][] = array(
+                                'type' => 'uri',
+                                'value' => 'urn:ISSN:' . $value
+                            );
                         }
                     }
+
+                    if (isset($eisbn[0])) {
+                        foreach ($eisbn[0] as $value) {
+                            $items .= $itemUri . ' amsl:eisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
+                            $data[$itemUri][$nsAmsl . 'eispn'][] = array(
+                                'type' => 'uri',
+                                'value' => 'urn:ISBN:' . $value
+                            );
+                        }
+                    }
+
                     # write statements linking to found PISSNs
-                    foreach ($pissn[0] as $value) {
-                        $items.= $itemUri . ' amsl:pissn <urn:ISSN:' . $value . '> .' .PHP_EOL;
+                    if (isset($pissn[0])) {
+                        foreach ($pissn[0] as $value) {
+                            $items .= $itemUri . ' amsl:pissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
+                            $data[$itemUri][$nsAmsl . 'pissn'][] = array(
+                                'type' => 'uri',
+                                'value' => 'urn:ISSN:' . $value
+                            );
+                        }
+                    }
+
+                    if (isset($pisbn[0])) {
+                        foreach ($pisbn[0] as $value) {
+                            $items .= $itemUri . ' amsl:pisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
+                            $data[$itemUri][$nsAmsl . 'pisbn'][] = array(
+                                'type' => 'uri',
+                                'value' => 'urn:ISBN:' . $value
+                            );
+                        }
                     }
                 } else {
                     continue;
@@ -236,9 +323,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
             } else {
                 $errorCount++;
                 if ($errorCount === 1) {
-                    $ignoredLines = $lineNumber ;
+                    $ignoredLines = $lineNumber;
                 } else {
-                    $ignoredLines.= ", " . $lineNumber ;
+                    $ignoredLines .= ", " . $lineNumber;
                 }
             }
         }
@@ -252,16 +339,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $this->_owApp->appendInfoMessage("Some data imported, but lines " . $ignoredLines . "ignored due to missing columns or wrong seperators.");
         }
 
-        $data.= $items;
-
-        $importFile = tempnam(sys_get_temp_dir(), 'ow');
-        $tmp = fopen($importFile, 'wb');
-        fwrite($tmp, $data);
-        fclose($tmp);
-        $locator  = Erfurt_Syntax_RdfParser::LOCATOR_FILE;
-
         try {
-            $this->_import($importFile, $locator);
+            $this->_import($data);
         } catch (Exception $e) {
             $message = $e->getMessage();
             $this->_owApp->appendErrorMessage($message);
@@ -271,7 +350,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $this->_owApp->appendSuccessMessage('Data successfully imported.');
     }
 
-    private function _import($fileOrUrl, $locator)
+    private function _import($data)
     {
         $modelIri = (string)$this->_model;
         $versioning = $this->_erfurt->getVersioning();
@@ -284,7 +363,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         try {
             // starting action
             $versioning->startAction($actionSpec);
-            $this->_erfurt->getStore()->importRdf($modelIri, $fileOrUrl, 'ttl', $locator);
+            $this->_model->addMultipleStatements($data);
             // stopping action
             $versioning->endAction(); 
             // Trigger Reindex
