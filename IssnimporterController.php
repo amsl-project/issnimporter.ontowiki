@@ -202,18 +202,20 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $proprietaryID = '';
             $doi = '';
             $foundEISSN = false;
-            $foundEISBN = false;
             $foundPISSN = false;
-            $foundPISBN = false;
             $itemUri    = '';
             $columnCount = count($csvLine);
             if ($columnCount >= 6) {
                 $title = trim($csvLine[0]);
 
-                # Create a 'unique' URI so the same ISSN can be used in other 
-                # contracts/packages/packages/packages/packages/packages/packages/packages again
+                // Find identifiers
+
+                // check if title is not identifierless
                 if (!($csvLine[1] === 'NA' && $csvLine[2] === 'NA' &&
                     $csvLine[3] === 'NA' && $csvLine[4] === 'NA')) {
+
+                    // Start identifier search
+                    $skipIdentifier = false;
 
                     // Search for Proprietary ID
                     if ($csvLine[3] !== '') {
@@ -222,9 +224,11 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     }
 
                     // Search for DOI
-                    if (isset($csvLine[4]) && $csvLine !== '') {
-                        $itemUri = $item . $lineNumber;
-                        $doi = $csvLine[3];
+                    if (isset($csvLine[4]) && $csvLine[4] !== '') {
+                        if (substr($csvLine[4], 0, 3) === '10.') {
+                            $itemUri = $item . $lineNumber;
+                            $doi = $csvLine[4];
+                        }
                     }
 
                     # Search for E-ISSN
@@ -232,43 +236,49 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         # Found an EISSN, create URI and write first statemntes
                         $foundEISSN = true;
                         $itemUri = $item . $lineNumber;
+                    } else {
+                        $eissn = null;
                     }
 
                     # Search for P-ISSN
                     if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[1], $pissn)) {
                         $foundPISSN = true;
                         $itemUri = $item . $lineNumber;
-                    }
-
-                    # Search for P-ISBN
-                    if (preg_match_all($regISBN, str_replace('-', '', $csvLine[1]), $pisbn)) {
-                        $itemUri = $item . $lineNumber;
-                        $foundPISBN = true;
-                        // it is possible to match a ISSN expression within a ISBN string
-                        // if this is the case reset the ISSN values
-                        if ($foundPISSN === true) {
-                            $foundPISSN = false;
-                            $pissn = null;
-                        }
+                    } else {
+                        $pissn = null;
                     }
 
                     # Search for E-ISBN
                     if (preg_match_all($regISBN, str_replace('-', '', $csvLine[2]), $eisbn)) {
                         $itemUri = $item . $lineNumber;
-                        $foundEISBN = true;
                         // it is possible to match a ISSN expression within a ISBN string
                         // if this is the case reset the ISSN values
                         if ($foundEISSN === true) {
-                            $foundEISSN = false;
                             $eissn = null;
                         }
+                    } else {
+                        $eisbn = null;
+                    }
+
+                    # Search for P-ISBN
+                    if (preg_match_all($regISBN, str_replace('-', '', $csvLine[1]), $pisbn)) {
+                        $itemUri = $item . $lineNumber;
+                        // it is possible to match a ISSN expression within a ISBN string
+                        // if this is the case reset the ISSN values
+                        if ($foundPISSN === true) {
+                            $pissn = null;
+                        }
+                    } else {
+                        $pisbn = null;
                     }
                 } else {
+                    // all identifier values == 'NA' => import without identifier (grey literature)
+                    $skipIdentifier = true;
                     $itemUri = $item . $lineNumber;
                 }
 
 
-                # If identifier were found go on
+                # If identifier were found or identifierless import go on
                 if ($itemUri !== '') {
                     $items .= $itemUri . ' a amsl:ContractItem ;' . PHP_EOL;
                     $data[$itemUri][EF_RDF_TYPE][] = array(
@@ -313,64 +323,70 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         }
                     }
 
-                    // write statement for proprietary ID
-                    if (isset($proprietaryID)) {
-                        $data[$itemUri][$nsAmsl . 'proprietaryID'][] = array(
-                            'type'  => 'literal',
-                            'value' => $value
-                        );
-                    }
+                    if ($skipIdentifier === false) {
+                        // write statement for proprietary ID
+                        if ($proprietaryID !== '') {
+                            $data[$itemUri][$nsAmsl . 'proprietaryID'][] = array(
+                                'type' => 'literal',
+                                'value' => $proprietaryID
+                            );
+                        }
 
-                    // write statement for DOI
-                    if (isset($doi) && Erfurt_Uri::check('http://doi.org/' . $value)
+                        // write statement for DOI
+                        if ($doi !== '' && Erfurt_Uri::check('http://doi.org/' . $doi)
                         ) {
-                        $data[$itemUri][$nsAmsl . 'doi'][] = array(
-                            'type'  => 'uri',
-                            'value' => 'http://doi.org/' . $value
-                        );
-                    }
-
-                    // write statements linking to found E-ISSNs
-                    if (isset($eissn[0])) {
-                        foreach ($eissn[0] as $value) {
-                            $items .= $itemUri . ' amsl:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
-                            $data[$itemUri][$nsAmsl . 'eissn'][] = array(
-                                'type'  => 'uri',
-                                'value' => 'urn:ISSN:' . $value
+                            $data[$itemUri][$nsAmsl . 'doi'][] = array(
+                                'type' => 'uri',
+                                'value' => 'http://doi.org/' . $doi
                             );
                         }
-                    }
 
-                    // write statements linking to found E-ISBNs
-                    if (isset($eisbn[0])) {
-                        foreach ($eisbn[0] as $value) {
-                            $items .= $itemUri . ' amsl:eisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
-                            $data[$itemUri][$nsAmsl . 'eisbn'][] = array(
-                                'type'  => 'uri',
-                                'value' => 'urn:ISBN:' . $value
-                            );
+                        // write statements linking to found E-ISSNs
+                        if (isset($eissn[0])) {
+                            foreach ($eissn[0] as $value) {
+                                $items .= $itemUri . ' amsl:eissn <urn:ISSN:' .
+                                    $value . '> .' . PHP_EOL;
+                                $data[$itemUri][$nsAmsl . 'eissn'][] = array(
+                                    'type' => 'uri',
+                                    'value' => 'urn:ISSN:' . $value
+                                );
+                            }
                         }
-                    }
 
-                    # write statements linking to found P-ISSNs
-                    if (isset($pissn[0])) {
-                        foreach ($pissn[0] as $value) {
-                            $items .= $itemUri . ' amsl:pissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
-                            $data[$itemUri][$nsAmsl . 'pissn'][] = array(
-                                'type'  => 'uri',
-                                'value' => 'urn:ISSN:' . $value
-                            );
+                        // write statements linking to found E-ISBNs
+                        if (isset($eisbn[0])) {
+                            foreach ($eisbn[0] as $value) {
+                                $items .= $itemUri . ' amsl:eisbn <urn:ISBN:' .
+                                    $value . '> .' . PHP_EOL;
+                                $data[$itemUri][$nsAmsl . 'eisbn'][] = array(
+                                    'type' => 'uri',
+                                    'value' => 'urn:ISBN:' . $value
+                                );
+                            }
                         }
-                    }
 
-                    // write statements linking to found P-ISBNs
-                    if (isset($pisbn[0])) {
-                        foreach ($pisbn[0] as $value) {
-                            $items .= $itemUri . ' amsl:pisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
-                            $data[$itemUri][$nsAmsl . 'pisbn'][] = array(
-                                'type'  => 'uri',
-                                'value' => 'urn:ISBN:' . $value
-                            );
+                        # write statements linking to found P-ISSNs
+                        if (isset($pissn[0])) {
+                            foreach ($pissn[0] as $value) {
+                                $items .= $itemUri . ' amsl:pissn <urn:ISSN:' .
+                                    $value . '> .' . PHP_EOL;
+                                $data[$itemUri][$nsAmsl . 'pissn'][] = array(
+                                    'type' => 'uri',
+                                    'value' => 'urn:ISSN:' . $value
+                                );
+                            }
+                        }
+
+                        // write statements linking to found P-ISBNs
+                        if (isset($pisbn[0])) {
+                            foreach ($pisbn[0] as $value) {
+                                $items .= $itemUri . ' amsl:pisbn <urn:ISBN:' .
+                                    $value . '> .' . PHP_EOL;
+                                $data[$itemUri][$nsAmsl . 'pisbn'][] = array(
+                                    'type' => 'uri',
+                                    'value' => 'urn:ISBN:' . $value
+                                );
+                            }
                         }
                     }
                 } else {
@@ -421,7 +437,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $versioning->startAction($actionSpec);
             $this->_model->addMultipleStatements($data);
             // stopping action
-            $versioning->endAction(); 
+            $versioning->endAction();
             // Trigger Reindex
             $indexEvent = new Erfurt_Event('onFullreindexAction');
             $indexEvent->trigger();
