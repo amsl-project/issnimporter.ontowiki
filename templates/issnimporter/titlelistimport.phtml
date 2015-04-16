@@ -34,7 +34,12 @@ $translate = OntoWiki::getInstance()->translate;
         </div>
         <div>
             <p class="messagebox info">
-                <?php echo $this->_($translate->translate('Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: PISSN, EISSN, title, price.')) ?>
+                <?php $msg = 'Please select a UTF-8 encoded CSV File to import.' ?>
+                <?php $msg.= ' Expected order of columns will be: Title, ISBN/ISSN (print),' ?>
+                <?php $msg.= ' ISSN/ISBN (electronic), Proprietary-ID, DOI, price. (At' ?>
+                <?php $msg.= ' least the title and one identifier are neccesary. If a title' ?>
+                <?php $msg.= ' has no identifiers use "NA" in all id columns.)' ?>
+                <?php echo $this->_($translate->translate($msg)) ?>
             </p>
         </div>
         <div>

@@ -64,27 +64,32 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $this->view->placeholder('main.window.title')->set('Upload CSV title list');
 
         if ($this->_request->isPost()) {
-            $data = array();
-            $nsAmsl = 'http://vocab.ub.uni-leipzig.de/amsl/';
-            $nsDct = 'http://purl.org/dc/terms/';
-            $nsXsd    = 'http://www.w3.org/2001/XMLSchema#';
-            $post = $this->_request->getPost();
-            $upload = new Zend_File_Transfer();
-            $filesArray = $upload->getFileInfo();
-            $delimiter = $post['delimiter'];
-            $enclosure = $post['enclosure'];
-            $year = $post['validityyear'];
-            $label = $post['resourcelabel'];
-            $targetType = $post['collectIn'];
+            $data           = array();
+            $nsAmsl         = 'http://vocab.ub.uni-leipzig.de/amsl/';
+            $nsDct          = 'http://purl.org/dc/terms/';
+            $nsXsd          = 'http://www.w3.org/2001/XMLSchema#';
+            $post           = $this->_request->getPost();
+            $upload         = new Zend_File_Transfer();
+            $filesArray     = $upload->getFileInfo();
+            $delimiter      = $post['delimiter'];
+            $enclosure      = $post['enclosure'];
+            $year           = $post['validityyear'];
+            $label          = $post['resourcelabel'];
+            $targetType     = $post['collectIn'];
             $targetResource = $post['existendResource'];
-            $regISBN = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
-            # Check for valid year
-            if (preg_match_all('/[2][01]\d{2}/',$post['validityyear'],$result)) {
-                $year = $result[0][0];
+            $regISBN        = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
+
+            // Check for valid year
+            if (preg_match('/[2][01]\d{2}/',$post['validityyear'],$result)) {
+                $year = $result[0];
             } else {
-                $year = date("Y");
+                $this->_owApp->appendErrorMessage($this->_translate->translate(
+                    'The given value for "year" is empty or wrong. (2000-2199)'
+                ));
+                return;
             }
 
+            // Check if URI is given or valid if "existent resource"-option is checked
             if ($targetType === 'existent' &&
                 ($targetResource === '' || !(Erfurt_Uri::check($targetResource)))
             ) {
@@ -101,7 +106,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     $message = 'upload went wrong. check post_max_size in your php.ini.';
                     break;
                 case ($filesArray['source']['error'] == UPLOAD_ERR_INI_SIZE):
-                    $message = 'The uploaded files\'s size exceeds the upload_max_filesize directive in php.ini.';
+                    $message = 'The uploaded files\'s size exceeds the upload_max_filesize';
+                    $message.= ' directive in php.ini.';
+
                     break;
                 case ($filesArray['source']['error'] == UPLOAD_ERR_PARTIAL):
                     $message = 'The file was only partially uploaded.';
@@ -112,7 +119,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             }
 
             if ($message != '') {
-                $this->_owApp->appendErrorMessage($message);
+                $this->_owApp->appendErrorMessage($this->_translate->translate($message));
                 return;
             }
 
@@ -189,83 +196,103 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $items = '';
         $errorCount = 0;
         $lineNumber = 0;
+        // iterate through CSV lines
         foreach ($csvData as $csvLine) {
             $lineNumber++;
+            $proprietaryID = '';
+            $doi = '';
             $foundEISSN = false;
             $foundEISBN = false;
             $foundPISSN = false;
             $foundPISBN = false;
             $itemUri    = '';
             $columnCount = count($csvLine);
-            if ($columnCount >= 4) {
-                $title = trim($csvLine[2]);
+            if ($columnCount >= 6) {
+                $title = trim($csvLine[0]);
 
                 # Create a 'unique' URI so the same ISSN can be used in other 
                 # contracts/packages/packages/packages/packages/packages/packages/packages again
+                if (!($csvLine[1] === 'NA' && $csvLine[2] === 'NA' &&
+                    $csvLine[3] === 'NA' && $csvLine[4] === 'NA')) {
 
-                # Search for E-ISSN
-                if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[1], $eissn)) {
-                    # Found an EISSN, create URI and write first statemntes
-                    $foundEISSN = true;
-                    $itemUri = $item . $eissn[0][0];
+                    // Search for Proprietary ID
+                    if ($csvLine[3] !== '') {
+                        $itemUri = $item . $lineNumber;
+                        $proprietaryID = $csvLine[3];
+                    }
+
+                    // Search for DOI
+                    if (isset($csvLine[4]) && $csvLine !== '') {
+                        $itemUri = $item . $lineNumber;
+                        $doi = $csvLine[3];
+                    }
+
+                    # Search for E-ISSN
+                    if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[2], $eissn)) {
+                        # Found an EISSN, create URI and write first statemntes
+                        $foundEISSN = true;
+                        $itemUri = $item . $lineNumber;
+                    }
+
+                    # Search for P-ISSN
+                    if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[1], $pissn)) {
+                        $foundPISSN = true;
+                        $itemUri = $item . $lineNumber;
+                    }
+
+                    # Search for P-ISBN
+                    if (preg_match_all($regISBN, str_replace('-', '', $csvLine[1]), $pisbn)) {
+                        $itemUri = $item . $lineNumber;
+                        $foundPISBN = true;
+                        // it is possible to match a ISSN expression within a ISBN string
+                        // if this is the case reset the ISSN values
+                        if ($foundPISSN === true) {
+                            $foundPISSN = false;
+                            $pissn = null;
+                        }
+                    }
+
+                    # Search for E-ISBN
+                    if (preg_match_all($regISBN, str_replace('-', '', $csvLine[2]), $eisbn)) {
+                        $itemUri = $item . $lineNumber;
+                        $foundEISBN = true;
+                        // it is possible to match a ISSN expression within a ISBN string
+                        // if this is the case reset the ISSN values
+                        if ($foundEISSN === true) {
+                            $foundEISSN = false;
+                            $eissn = null;
+                        }
+                    }
+                } else {
+                    $itemUri = $item . $lineNumber;
                 }
 
-                # Search for E-ISBN
-                if (preg_match_all($regISBN, str_replace('-', '', $csvLine[1]), $eisbn)) {
-                    # Found an EISSN, create URI and write first statemntes
-                    $foundEISBN = true;
-                    if ($foundEISSN === true) {
-                        $foundEISSN = false;
-                        $eissn = null;
-                    }
-                    $itemUri = $item . $eisbn[0][0];
-                }
-
-                # Search for P-ISSN
-                if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[0], $pissn)) {
-                    $foundPISSN = true;
-                    if ($foundEISSN === false) {
-                        $itemUri = $item . $pissn[0][0];
-                    }
-                }
-
-                # Search for P-ISBN
-                if (preg_match_all($regISBN, str_replace('-', '', $csvLine[0]), $pisbn)) {
-                    $foundPISBN = true;
-                    if ($foundEISBN === false) {
-                        $itemUri = $item . $pisbn[0][0];
-                    }
-                    if ($foundPISSN === true) {
-                        $foundPISSN = false;
-                        $pissn = null;
-                    }
-                }
 
                 # If identifier were found go on
                 if ($itemUri !== '') {
                     $items .= $itemUri . ' a amsl:ContractItem ;' . PHP_EOL;
                     $data[$itemUri][EF_RDF_TYPE][] = array(
-                        'type' => 'uri',
-                        'value' => $nsAmsl . 'ContractItem'
+                        'type'     => 'uri',
+                        'value'    => $nsAmsl . 'ContractItem'
                     );
                     $items .= '  amsl:contractItemOf ' . $mainResource . ' ;' . PHP_EOL;
                     $data[$itemUri][$nsAmsl . 'contractItemOf'][] = array(
-                        'type' => 'uri',
-                        'value' => $mainResource
+                        'type'     => 'uri',
+                        'value'    => $mainResource
                     );
                     $items .= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                     $data[$itemUri][$nsDct . 'created'][] = array(
-                        'type' => 'literal',
+                        'type'     => 'literal',
                         'datatype' => $nsXsd . 'dateTime',
-                        'value' => $xsdDateTime
+                        'value'    => $xsdDateTime
                     );
                     $items .= '  rdfs:label ' . '"' . $title . ' (' . $year . ')"  .' . PHP_EOL;
                     $data[$itemUri][EF_RDFS_LABEL][] = array(
-                        'type' => 'literal',
-                        'value' => $title . ' (' . $year . ')'
+                        'type'     => 'literal',
+                        'value'    => $title . ' (' . $year . ')'
                     );
 
-                    if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[3],$price)) {
+                    if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[5],$price)) {
                         foreach($price[0] as $value) {
                             # Check if price contains comma and replace with
                             # dot if so
@@ -280,49 +307,68 @@ class IssnimporterController extends OntoWiki_Controller_Component
                             $items.= $itemUri . ' amsl:itemPrice "' . $value .
                                 '"^^xsd:decimal .' . PHP_EOL;
                             $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
-                                'type' => 'literal',
+                                'type'  => 'literal',
                                 'value' => $value
                             );
                         }
                     }
 
-                    # write statements linking to found EISSNs
+                    // write statement for proprietary ID
+                    if (isset($proprietaryID)) {
+                        $data[$itemUri][$nsAmsl . 'proprietaryID'][] = array(
+                            'type'  => 'literal',
+                            'value' => $value
+                        );
+                    }
+
+                    // write statement for DOI
+                    if (isset($doi) && Erfurt_Uri::check('http://doi.org/' . $value)
+                        ) {
+                        $data[$itemUri][$nsAmsl . 'doi'][] = array(
+                            'type'  => 'uri',
+                            'value' => 'http://doi.org/' . $value
+                        );
+                    }
+
+                    // write statements linking to found E-ISSNs
                     if (isset($eissn[0])) {
                         foreach ($eissn[0] as $value) {
                             $items .= $itemUri . ' amsl:eissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
                             $data[$itemUri][$nsAmsl . 'eissn'][] = array(
-                                'type' => 'uri',
+                                'type'  => 'uri',
                                 'value' => 'urn:ISSN:' . $value
                             );
                         }
                     }
 
+                    // write statements linking to found E-ISBNs
                     if (isset($eisbn[0])) {
                         foreach ($eisbn[0] as $value) {
                             $items .= $itemUri . ' amsl:eisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
                             $data[$itemUri][$nsAmsl . 'eisbn'][] = array(
-                                'type' => 'uri',
+                                'type'  => 'uri',
                                 'value' => 'urn:ISBN:' . $value
                             );
                         }
                     }
 
-                    # write statements linking to found PISSNs
+                    # write statements linking to found P-ISSNs
                     if (isset($pissn[0])) {
                         foreach ($pissn[0] as $value) {
                             $items .= $itemUri . ' amsl:pissn <urn:ISSN:' . $value . '> .' . PHP_EOL;
                             $data[$itemUri][$nsAmsl . 'pissn'][] = array(
-                                'type' => 'uri',
+                                'type'  => 'uri',
                                 'value' => 'urn:ISSN:' . $value
                             );
                         }
                     }
 
+                    // write statements linking to found P-ISBNs
                     if (isset($pisbn[0])) {
                         foreach ($pisbn[0] as $value) {
                             $items .= $itemUri . ' amsl:pisbn <urn:ISBN:' . $value . '> .' . PHP_EOL;
                             $data[$itemUri][$nsAmsl . 'pisbn'][] = array(
-                                'type' => 'uri',
+                                'type'  => 'uri',
                                 'value' => 'urn:ISBN:' . $value
                             );
                         }
