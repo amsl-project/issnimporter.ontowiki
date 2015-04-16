@@ -3,7 +3,7 @@ New annual contract data;Neue Vertragsjahresdaten
 New license package;Neues Lizenzpaket
 Link to existent resource;Mit vorhandener Ressource verknüpfen
 Existent resource;Vorhandene Ressource
-Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISSN/ISBN (electronic), Proprietary-ID, DOI, price. (At least the title and one identifier are neccesary. If a title has no identifiers use "NA" in all id columns.)	;Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Die Reihenfolge wird wie folgt erwartet: Titel, ISBN/ISSN (print), ISBN/ISBN (elektr.), Proprietäre ID, DOI, Preis. Titeldaten für die keine IDs existieren können durch die Angabe von "NA" in allen für IDs relevanten Spalten importiert werden.
+Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISSN/ISBN (electronic), Proprietary-ID, DOI, price. (At least the title and one identifier are neccesary. If a title has no identifiers use "NA" in all id columns.);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Die Reihenfolge wird wie folgt erwartet: Titel, ISBN/ISSN (print), ISBN/ISBN (elektr.), Proprietäre ID, DOI, Preis. Titeldaten für die keine IDs existieren können durch die Angabe von "NA" in allen für IDs relevanten Spalten importiert werden.
 Please give a URI of an existent resource that should contain the contract items.;Bitte die URI einer vorhanden Ressource eintragen, falls die Titel dieser angehangen werden sollen.
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
