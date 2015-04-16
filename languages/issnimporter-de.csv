@@ -13,3 +13,4 @@ CSV import settings;CSV-Einstellungen
 Upload list of journal titles from CSV file;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren
 Import a titlelist of journals with csv upload;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren
 The value for existent resource is empty or wrong. Please check the value and try again.;Bitte überprüfen Sie den Wert für "Vorhandene Ressource".
+CSV contains title row;Erste Zeile enthält Überschriften

@@ -27,6 +27,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
     {
         parent::init();
         $action = $this->_request->getActionName();
+        $this->view->headLink()->appendStylesheet($this->_config->urlBase .
+            'extensions/issnimporter/templates/issnimporter/issnimporter.css');
         $this->view->placeholder('main.window.title')->set('Import Data');
         $this->view->formActionUrl    = $this->_config->urlBase . 'issnimporter/' . $action;
         $this->view->formEncoding     = 'multipart/form-data';
@@ -71,6 +73,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $post           = $this->_request->getPost();
             $upload         = new Zend_File_Transfer();
             $filesArray     = $upload->getFileInfo();
+            $titleRow       = $post['title'];
             $delimiter      = $post['delimiter'];
             $enclosure      = $post['enclosure'];
             $year           = $post['validityyear'];
@@ -196,6 +199,13 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $items = '';
         $errorCount = 0;
         $lineNumber = 0;
+
+        if (isset($titleRow) && $titleRow === 'on') {
+            $csvData = array_shift($csvData);
+            $lineNumber++;
+            echo "Erste Zeile übersprungen";
+        }
+
         // iterate through CSV lines
         foreach ($csvData as $csvLine) {
             $lineNumber++;

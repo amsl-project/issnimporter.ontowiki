@@ -56,6 +56,9 @@ $translate = OntoWiki::getInstance()->translate;
             <br class="clearall"/>
         </br>
             <p class="messagebox info"><?php echo $this->_('CSV import settings') ?></p>
+            <label for="hasTitle"><?php echo $this->_($translate->translate('CSV contains title row')) ?></label>
+            <input type="checkbox" checked id="hasTitle" name="title" />
+            <br class="clearall"/>
             <label for="delimiter-input"><?php echo $this->_($translate->translate('Field delimiter')) ?></label>
             <input type="text" class="text" size="1" maxlength="1" value=";" class="text" id="delimiter-input" name="delimiter" />
             <br class="clearall"/>
