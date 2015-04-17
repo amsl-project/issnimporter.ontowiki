@@ -83,9 +83,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
             if (isset($post['title'])) {
                 if ($post['title'] === 'on') {
                     $skipFirst = true;
-                } else {
-                    $skipFirst = false;
                 }
+            } else {
+                $skipFirst = false;
             }
 
             // Check for valid year
@@ -318,10 +318,11 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     );
 
                     if (preg_match('/\d+(?:[\.,]\d+)?/',$csvLine[5],$price)) {
+                        $value = $price[0];
                         # Check if price contains comma and replace with
                         # dot if so
-                        if (strpos($price[0],',')!==FALSE) {
-                            $value = str_replace(',','.',$price[0]);
+                        if (strpos($value,',')!==FALSE) {
+                            $value = str_replace(',','.',$value);
                             # Check for missing dot and build a valid price
                         } else {
                             if (strpos($value,'.')===FALSE) {
