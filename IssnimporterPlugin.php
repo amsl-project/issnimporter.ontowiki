@@ -34,9 +34,9 @@ class IssnimporterPlugin extends OntoWiki_Plugin
             'issnimporter-titlelist' => array(
                 'controller' => 'issnimporter',
                 'action' => 'titlelistimport',
-                'label' => $translate->translate('Import a titlelist of journals with csv upload'),
+                'label' => $translate->translate('Import a titlelist with csv upload'),
                 'description' => 'Tries to generate triples out of a csv file containing ' .
-                    ' PISSN, EISSN, title and (optional) price (in that order)'
+                    ' titles, identifiers and (optional) price'
             )
         );
 

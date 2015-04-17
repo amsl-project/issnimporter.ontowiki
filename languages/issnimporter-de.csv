@@ -1,16 +1,18 @@
-Please select if the journals should belong to a license package or should be attached to the annual contract data directly.;Bitte wählen Sie, ob die Titel einem Lizenzpaket oder direkt den Vertragsjahresdaten zugeordnet werden sollen.
+Please select if the titles should belong to a license package or should be attached to the annual contract data directly.;Bitte wählen Sie, ob die Titel einem Lizenzpaket oder direkt den Vertragsjahresdaten zugeordnet werden sollen.
 New annual contract data;Neue Vertragsjahresdaten
 New license package;Neues Lizenzpaket
 Link to existent resource;Mit vorhandener Ressource verknüpfen
 Existent resource;Vorhandene Ressource
-Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISSN/ISBN (electronic), Proprietary-ID, DOI, price. (At least the title and one identifier are neccesary. If a title has no identifiers use "NA" in all id columns.);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Die Reihenfolge wird wie folgt erwartet: Titel, ISBN/ISSN (print), ISBN/ISBN (elektr.), Proprietäre ID, DOI, Preis. Titeldaten für die keine IDs existieren können durch die Angabe von "NA" in allen für IDs relevanten Spalten importiert werden.
+Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISSN/ISBN (electronic), Proprietary-ID, DOI, price (without thousands seperator);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Der Aufbau der Datei wird in folgender Reihenfolge erwartet: Titel, ISBN/ISSN (print), ISBN/ISBN (elektr.), Proprietäre ID, DOI, Preis (ohne Tausendertrennzeichen).
 Please give a URI of an existent resource that should contain the contract items.;Bitte die URI einer vorhanden Ressource eintragen, falls die Titel dieser angehangen werden sollen.
+The list may contain journals, books or grea literature. At least the title and one identifier are neccesary. If a title should be imported that has no identifiers use "NA" in all id columns.);Die Titelliste kann aus Zeitschriften, Büchern und grauer Literatur bestehen. Mindestens ein Identifier und die Angabe des Titels sind notwendig. Ein Titel für den keine Identifier existieren, kann durch die Angabe von "NA" in allen ID-Spalten, importiert werden.
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
 Label for contract/package information;Bezeichnung für Vertrags- bzw. Paketinformationen
 Validity year;Gültigkeitsjahr
 CSV import settings;CSV-Einstellungen
-Upload list of journal titles from CSV file;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren
-Import a titlelist of journals with csv upload;Eine Zeitschriftentitelliste aus einer CSV-Datei importieren
+Upload list of titles from CSV file;Eine Titelliste aus einer CSV-Datei importieren
+Import a titlelist with csv upload;Eine Titelliste aus einer CSV-Datei importieren
 The value for existent resource is empty or wrong. Please check the value and try again.;Bitte überprüfen Sie den Wert für "Vorhandene Ressource".
 CSV contains title row;Erste Zeile enthält Überschriften
+Tries to generate triples out of a csv file containing titles, identifiers and (optional) price;Import einer Titelliste (Zeitschriften, Bücher, graue Literatur) mit Hilfe einer CSV-Datei

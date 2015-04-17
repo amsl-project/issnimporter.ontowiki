@@ -14,7 +14,7 @@
   owconfig:pluginEvent event:onProvideImportActions ;
   owconfig:enabled "true"^^xsd:boolean ;
   rdfs:label "ISSN Data Import Actions" ;
-  doap:description "provides import action for issn title lists containing issn, titles and prices" ;
+  doap:description "provides import action for title lists containing identifiers, titles and prices" ;
   doap:maintainer <http://ub.uni-leipzig.de> ;
   owconfig:templates "templates" ;
   owconfig:languages "languages" ;

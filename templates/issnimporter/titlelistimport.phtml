@@ -5,10 +5,10 @@
 $translate = OntoWiki::getInstance()->translate;
 ?>
 <fieldset class="activeForm" id="importdata">
-    <legend><?php echo $this->_($translate->translate('Upload list of journal titles from CSV file')) ?></legend>
+    <legend><?php echo $this->_($translate->translate('Upload list of titles from CSV file')) ?></legend>
     <div class="width49 float margin">
         <div>
-            <p class="messagebox info"><?php echo $translate->translate('Please select if the journals should belong to a license package or should be attached to the annual contract data directly.') ?></p>
+            <p class="messagebox info"><?php echo $translate->translate('Please select if the titles should belong to a license package or should be attached to the annual contract data directly.') ?></p>
             <label for="package" class="checkboxradio"><?php echo $translate->translate('New license package') ?>
                 <input type="radio" class="radio" name="collectIn" id="package" value="package" />
             </label>
@@ -36,9 +36,15 @@ $translate = OntoWiki::getInstance()->translate;
             <p class="messagebox info">
                 <?php $msg = 'Please select a UTF-8 encoded CSV File to import.' ?>
                 <?php $msg.= ' Expected order of columns will be: Title, ISBN/ISSN (print),' ?>
-                <?php $msg.= ' ISSN/ISBN (electronic), Proprietary-ID, DOI, price. (At' ?>
-                <?php $msg.= ' least the title and one identifier are neccesary. If a title' ?>
-                <?php $msg.= ' has no identifiers use "NA" in all id columns.)' ?>
+                <?php $msg.= ' ISSN/ISBN (electronic), Proprietary-ID, DOI, price (without' ?>
+                <?php $msg.= ' thousands seperator)' ?>
+                <?php echo $this->_($translate->translate($msg)) ?>
+            </p>
+            <p class="messagebox info">
+                <?php $msg = 'The list may contain journals, books or grea literature.' ?>
+                <?php $msg.= ' At least the title and one identifier are neccesary. If a title' ?>
+                <?php $msg.= ' should be imported that has no identifiers' ?>
+                <?php $msg.= ' use "NA" in all id columns.)' ?>
                 <?php echo $this->_($translate->translate($msg)) ?>
             </p>
         </div>

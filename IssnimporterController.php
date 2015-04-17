@@ -73,7 +73,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $post           = $this->_request->getPost();
             $upload         = new Zend_File_Transfer();
             $filesArray     = $upload->getFileInfo();
-            $titleRow       = $post['title'];
             $delimiter      = $post['delimiter'];
             $enclosure      = $post['enclosure'];
             $year           = $post['validityyear'];
@@ -81,6 +80,13 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $targetType     = $post['collectIn'];
             $targetResource = $post['existendResource'];
             $regISBN        = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
+            if (isset($post['title'])) {
+                if ($post['title'] === 'on') {
+                    $skipFirst = true;
+                } else {
+                    $skipFirst = false;
+                }
+            }
 
             // Check for valid year
             if (preg_match('/[2][01]\d{2}/',$post['validityyear'],$result)) {
@@ -200,15 +206,14 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $errorCount = 0;
         $lineNumber = 0;
 
-        if (isset($titleRow) && $titleRow === 'on') {
-            $csvData = array_shift($csvData);
-            $lineNumber++;
-            echo "Erste Zeile übersprungen";
-        }
 
         // iterate through CSV lines
         foreach ($csvData as $csvLine) {
             $lineNumber++;
+            if ($skipFirst === true) {
+                $skipFirst = false;
+                continue;
+            }
             $proprietaryID = '';
             $doi = '';
             $foundEISSN = false;
@@ -312,25 +317,23 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         'value'    => $title . ' (' . $year . ')'
                     );
 
-                    if (preg_match_all('/\d+(?:[\.,]\d+)?/',$csvLine[5],$price)) {
-                        foreach($price[0] as $value) {
-                            # Check if price contains comma and replace with
-                            # dot if so
-                            if (strpos($value,',')!==FALSE) {
-                                $value = str_replace(',','.',$value);
-                                # Check for missing dot and build a valid price
-                            } else {
-                                if (strpos($value,'.')===FALSE) {
-                                    $value.= '.00';
-                                }
+                    if (preg_match('/\d+(?:[\.,]\d+)?/',$csvLine[5],$price)) {
+                        # Check if price contains comma and replace with
+                        # dot if so
+                        if (strpos($price[0],',')!==FALSE) {
+                            $value = str_replace(',','.',$price[0]);
+                            # Check for missing dot and build a valid price
+                        } else {
+                            if (strpos($value,'.')===FALSE) {
+                                $value.= '.00';
                             }
-                            $items.= $itemUri . ' amsl:itemPrice "' . $value .
-                                '"^^xsd:decimal .' . PHP_EOL;
-                            $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
-                                'type'  => 'literal',
-                                'value' => $value
-                            );
                         }
+                        $items.= $itemUri . ' amsl:itemPrice "' . $value .
+                            '"^^xsd:decimal .' . PHP_EOL;
+                        $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
+                            'type'  => 'literal',
+                            'value' => $value
+                        );
                     }
 
                     if ($skipIdentifier === false) {
