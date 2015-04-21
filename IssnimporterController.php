@@ -208,6 +208,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
 
 
         // iterate through CSV lines
+        $ignoredLines = array();
         foreach ($csvData as $csvLine) {
             $lineNumber++;
             if ($skipFirst === true) {
@@ -222,6 +223,14 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $columnCount = count($csvLine);
             if ($columnCount >= 6) {
                 $title = trim($csvLine[0]);
+                if ($title === '') {
+                    $errorCount++;
+                    $msg = $this->_translate->translate('Row');
+                    $msg.= ' ' . $lineNumber . ' ';
+                    $msg.= $this->_translate->translate('ignored: Title is missing.');
+                    $ignoredLines[] = $msg;
+                    continue;
+                }
 
                 // Find identifiers
 
@@ -404,25 +413,39 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         }
                     }
                 } else {
+                    $errorCount++;
+                    $msg = $this->_translate->translate('Row');
+                    $msg.= ' ' . $lineNumber . ' ';
+                    $msg.= $this->_translate->translate('ignored: No identifiers were found.');
+                    $ignoredLines[] = $msg;
                     continue;
                 }
             } else {
                 $errorCount++;
-                if ($errorCount === 1) {
-                    $ignoredLines = $lineNumber;
-                } else {
-                    $ignoredLines .= ", " . $lineNumber;
-                }
+                $msg = $this->_translate->translate('Row');
+                $msg.= ' ' . $lineNumber . ' ';
+                $msg.= $this->_translate->translate('ignored: Missing columns or wrong seperators.');
+                $ignoredLines[] = $msg;
             }
         }
 
         if ($errorCount === count($csvData)) {
-            $this->_owApp->appendErrorMessage("Nothing was imported. Please check the content of your CSV file, there are not enough columns or the seperator might be wrong.");
+            $msg = $this->_translate->translate('Nothing was imported');
+            $this->_owApp->appendErrorMessage($msg);
+            foreach ($ignoredLines as $msg) {
+                $this->_owApp->appendInfoMessage($msg);
+            }
             return;
         } elseif ($errorCount === 1) {
-            $this->_owApp->appendInfoMessage("Some data imported, but line " . $ignoredLines . " ignored due to missing columns or wrong seperators.");
+            $msg = $this->_translate->translate('Some data not imported');
+            $this->_owApp->appendErrorMessage($msg);
         } elseif ($errorCount > 1) {
-            $this->_owApp->appendInfoMessage("Some data imported, but lines " . $ignoredLines . "ignored due to missing columns or wrong seperators.");
+            $msg = $this->_translate->translate('Some data not imported');
+            $this->_owApp->appendErrorMessage($msg);
+        }
+
+        foreach ($ignoredLines as $msg) {
+            $this->_owApp->appendInfoMessage($msg);
         }
 
         try {

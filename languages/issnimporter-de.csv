@@ -3,9 +3,9 @@ New annual contract data;Neue Vertragsjahresdaten
 New license package;Neues Lizenzpaket
 Link to existent resource;Mit vorhandener Ressource verknüpfen
 Existent resource;Vorhandene Ressource
-Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISSN/ISBN (electronic), Proprietary-ID, DOI, price (without thousands seperator);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Der Aufbau der Datei wird in folgender Reihenfolge erwartet: Titel, ISBN/ISSN (print), ISBN/ISBN (elektr.), Proprietäre ID, DOI, Preis (ohne Tausendertrennzeichen).
+Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISBN/ISSN (electronic), Proprietary-ID, DOI, price (without thousands seperator);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Der Aufbau der Datei wird in folgender Reihenfolge erwartet: Titel, ISBN/ISSN (print), ISBN/ISSN (elektr.), proprietäre ID, DOI, Preis (ohne Tausendertrennzeichen).
 Please give a URI of an existent resource that should contain the contract items.;Bitte die URI einer vorhanden Ressource eintragen, falls die Titel dieser angehangen werden sollen.
-The list may contain journals, books or grea literature. At least the title and one identifier are neccesary. If a title should be imported that has no identifiers use "NA" in all id columns.);Die Titelliste kann aus Zeitschriften, Büchern und grauer Literatur bestehen. Mindestens ein Identifier und die Angabe des Titels sind notwendig. Ein Titel für den keine Identifier existieren, kann durch die Angabe von "NA" in allen ID-Spalten, importiert werden.
+A title is necessary. Furthermore at least one identifier or, in case of media without any identifiers, "NA" has to be entered into each id column.;Die Titelliste kann aus Zeitschriften, Büchern und grauer Literatur bestehen. Die Angabe eines Titels ist notwendig. Weiterhin muss entweder mindestens ein Identifier oder, für identifierlose Titel,  in allen für Identifier vorgesehen Spalten "NA" angegeben werden.
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
 Label for contract/package information;Bezeichnung für Vertrags- bzw. Paketinformationen
@@ -16,3 +16,9 @@ Import a titlelist with csv upload;Eine Titelliste aus einer CSV-Datei importier
 The value for existent resource is empty or wrong. Please check the value and try again.;Bitte überprüfen Sie den Wert für "Vorhandene Ressource".
 CSV contains title row;Erste Zeile enthält Überschriften
 Tries to generate triples out of a csv file containing titles, identifiers and (optional) price;Import einer Titelliste (Zeitschriften, Bücher, graue Literatur) mit Hilfe einer CSV-Datei
+Row;Zeile
+ignored: Title is missing.;ignoriert: Fehlender Titel.
+ignored: No identifiers were found.;ignoriert: Es konnten keine Identifier gefunden werden.
+ignored: Missing columns or wrong seperators.;Zu wenig Spalten oder falsches Trennzeichen.
+Nothing was imported;Keine Daten importiert
+Some data not imported;Import unvollständig

@@ -36,15 +36,14 @@ $translate = OntoWiki::getInstance()->translate;
             <p class="messagebox info">
                 <?php $msg = 'Please select a UTF-8 encoded CSV File to import.' ?>
                 <?php $msg.= ' Expected order of columns will be: Title, ISBN/ISSN (print),' ?>
-                <?php $msg.= ' ISSN/ISBN (electronic), Proprietary-ID, DOI, price (without' ?>
+                <?php $msg.= ' ISBN/ISSN (electronic), Proprietary-ID, DOI, price (without' ?>
                 <?php $msg.= ' thousands seperator)' ?>
                 <?php echo $this->_($translate->translate($msg)) ?>
             </p>
             <p class="messagebox info">
-                <?php $msg = 'The list may contain journals, books or grea literature.' ?>
-                <?php $msg.= ' At least the title and one identifier are neccesary. If a title' ?>
-                <?php $msg.= ' should be imported that has no identifiers' ?>
-                <?php $msg.= ' use "NA" in all id columns.)' ?>
+                <?php $msg = 'A title is necessary. Furthermore at least one identifier or,' ?>
+                <?php $msg.= ' in case of media without any identifiers, "NA" has to be' ?>
+                <?php $msg.= ' entered into each id column.' ?>
                 <?php echo $this->_($translate->translate($msg)) ?>
             </p>
         </div>
