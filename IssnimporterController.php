@@ -476,7 +476,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
             // stopping action
             $versioning->endAction();
             // Trigger Reindex
-            $indexEvent = new Erfurt_Event('onFullreindexAction');
+            $indexEvent             = new Erfurt_Event('onReindexAction');
+            $indexEvent->model      = $modelIri;
             $indexEvent->trigger();
         } catch (Erfurt_Exception $e) {
             // re-throw
