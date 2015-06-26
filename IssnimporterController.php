@@ -218,9 +218,11 @@ class IssnimporterController extends OntoWiki_Controller_Component
 
         // iterate through CSV lines
         $ignoredLines = array();
+        $skipped = false;
         foreach ($csvData as $csvLine) {
             $lineNumber++;
             if ($skipFirst === true) {
+                $skipped = true;
                 $skipFirst = false;
                 continue;
             }
@@ -438,7 +440,9 @@ class IssnimporterController extends OntoWiki_Controller_Component
             }
         }
 
-        if ($errorCount === count($csvData)) {
+        if (($skipped === false && $errorCount === count($csvData)) ||
+            ($skipped === true && $errorCount === count($csvData) - 1))
+        {
             $msg = $this->_translate->translate('Nothing was imported');
             $this->_owApp->appendErrorMessage($msg);
             foreach ($ignoredLines as $msg) {
