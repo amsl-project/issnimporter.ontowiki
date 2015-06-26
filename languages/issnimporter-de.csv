@@ -22,3 +22,4 @@ ignored: No identifiers were found.;ignoriert: Es konnten keine Identifier gefun
 ignored: Missing columns or wrong seperators.;Zu wenig Spalten oder falsches Trennzeichen.
 Nothing was imported;Keine Daten importiert
 Some data not imported;Import unvollständig
+The file needs to be UTF-8 encoded. Please change encoding and retry.;Die Datei verwendet eine andere Zeichenkodierung als "UTF-8" und kann nicht importiert werden.

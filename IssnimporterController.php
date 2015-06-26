@@ -133,9 +133,19 @@ class IssnimporterController extends OntoWiki_Controller_Component
             }
 
             $file = $filesArray['source']['tmp_name'];
+
             // setting permissions to read the tempfile for everybody
             // (e.g. if db and webserver owned by different users)
             chmod($file, 0644);
+
+            # Check file encoding
+            $fileContent = file_get_contents($file);
+
+            if (!mb_check_encoding($fileContent, 'UTF-8')) {
+                $message = 'The file needs to be UTF-8 encoded. Please change encoding and retry.';
+                $this->_owApp->appendErrorMessage($this->_translate->translate($message));
+                return;
+            }
 
             # READING CSV file
             $handle = fopen($file, 'r');
@@ -153,7 +163,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
         } else {
             return;
         }
-
 
         $modelIri = (string)$this->_model;
         $hash = md5(rand()) ;
