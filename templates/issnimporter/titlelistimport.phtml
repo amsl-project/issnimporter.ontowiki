@@ -21,16 +21,10 @@ $translate = OntoWiki::getInstance()->translate;
             <input type="text" class="text" id="label-input" name="resourcelabel" />
             <br class="clearall"/>
             <br class="clearall"/>
-            <label for="existent" class="checkboxradio"><?php echo $translate->translate('Link to existent resource') ?>
-                <input type="radio" class="radio" name="collectIn" id="existent" value="existent" />
-            </label>
-        </div>
-        <div>
-            <p class="messagebox info"><?php echo $this->_('Please give a URI of an existent resource that should contain the contract items.') ?></p>
-            <label for="delimiter-input"><?php echo $this->_($translate->translate('Existent resource')) ?></label>
-            <input type="text" class="text" size="300" maxlength="300" value="" class="text" id="resource-input" name="existendResource" />
-            <br class="clearall"/>
-            <br class="clearall"/>
+            <p class="messagebox info"><?php echo $this->_('Please search for an existent resource that should contain the contract items.') ?></p>
+            <div class="contracts-data">
+                <input  id="contracts-input" class="typeahead width67" type="text" value="" name="contracts-input"/>
+            </div>
         </div>
         <div>
             <p class="messagebox info">
@@ -56,6 +50,7 @@ $translate = OntoWiki::getInstance()->translate;
             </label>
             <input type="file" id="file-input" name="source" />
             <br class="clearall" />
+            <br class="clearall"/>
             <label for="label-input"><?php echo $this->_('Validity year') ?></label>
             <input type="text" class="text" size="4" maxlength="4" value='<?php echo date("Y")+1 ?>' id="year-input" name="validityyear" />
             <br class="clearall"/>

@@ -19,6 +19,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
     private $_model = null;
     private $_post = null;
     private $_translate = null;
+    private $_contractsJSONData = null;
 
     /**
      * init() Method to init() normal and add tabbed Navigation
@@ -59,6 +60,23 @@ class IssnimporterController extends OntoWiki_Controller_Component
         if ($this->_request->isPost()) {
             $this->_post = $this->_request->getPost();
         }
+    }
+
+    /**
+     * This action will return a json_encoded array containing contracts and license packages
+     * it will be used for suggestions in import form
+     */
+    public function getcontractsAction()
+    {
+        // tells the OntoWiki to not apply the template to this action
+        $this->_helper->viewRenderer->setNoRender();
+        $this->_helper->layout->disableLayout();
+
+        if ($this->_contractsJSONData === null) {
+            $this->_setContractsJSONData();
+        }
+
+        $this->_response->setBody($this->_contractsJSONData);
     }
 
     public function titlelistimportAction()
@@ -500,5 +518,39 @@ class IssnimporterController extends OntoWiki_Controller_Component
                 $e
             );
         }
+    }
+
+    private function _setContractsJSONData () {
+        $nsAMSL = 'http://vocab.ub.uni-leipzig.de/amsl/';
+        $query = 'SELECT DISTINCT *  WHERE {' . PHP_EOL ;
+        $query.= '{ ?s a <' . $nsAMSL  . 'AnnualContractData> . } ' . PHP_EOL;
+        $query.= 'UNION ' . PHP_EOL;
+        $query.= '{ ?s a <' . $nsAMSL  . 'LicensePackage> . } ' . PHP_EOL;
+        $query.= '?s <' . EF_RDFS_LABEL   . '> ' . '?label .' . PHP_EOL;
+        $query.= '}' . PHP_EOL;
+
+        $result = $this->_model->sparqlQuery($query);
+        // Delete duplicates -> returns an associative array
+        $temp = $this->_super_unique($result);
+        // Create a new non associative array
+        $json = array();
+        foreach ($temp as $value) {
+            $json[] = $value;
+        }
+        $this->_contractsJSONData = json_encode($json);
+    }
+
+    private function _super_unique($array)
+    {
+        $result = array_map("unserialize", array_unique(array_map("serialize", $array)));
+
+        foreach ($result as $key => $value)
+        {
+            if ( is_array($value) )
+            {
+                $result[$key] = $this->_super_unique($value);
+            }
+        }
+        return $result;
     }
 }
