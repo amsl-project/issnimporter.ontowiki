@@ -96,7 +96,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $year           = $post['validityyear'];
             $label          = $post['resourcelabel'];
             $targetType     = $post['collectIn'];
-            $targetResource = $post['existendResource'];
+            $targetResource = $post['contracts-input'];
             $regISBN        = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
             if (isset($post['title'])) {
                 if ($post['title'] === 'on') {
