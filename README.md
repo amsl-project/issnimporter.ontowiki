@@ -9,4 +9,4 @@ The expected order of columns will be: Title, ISBN/ISSN (print), ISBN/ISSN (elec
 
 For more information about amsl vocabulary see (https://github.com/amsl-project/amsl.vocab/blob/master/amsl.ttl).
 
-![Screenshot of titlelist upload form](http://amsl.technology/wp-content/uploads/2015/06/screen.png "Upload form")
+![Screenshot of titlelist upload form](http://amsl.technology/wp-content/uploads/2015/07/form_csv.png "Upload form")
