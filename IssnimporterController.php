@@ -19,7 +19,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
     private $_model = null;
     private $_post = null;
     private $_translate = null;
-    private $_contractsJSONData = null;
 
     /**
      * init() Method to init() normal and add tabbed Navigation
@@ -27,6 +26,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
     public function init()
     {
         parent::init();
+
         $action = $this->_request->getActionName();
         $this->view->headLink()->appendStylesheet($this->_config->urlBase .
             'extensions/issnimporter/templates/issnimporter/issnimporter.css');
@@ -38,12 +38,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $this->view->formName         = 'importdata';
         $this->view->supportedFormats = $this->_erfurt->getStore()->getSupportedImportFormats();
         $this->_translate             = $this->_owApp->translate;
-
-        if (!$this->isSelectedModelEditable()) {
-            return;
-        } else {
-            $this->_model = $this->_owApp->selectedModel;
-        }
 
         // add a standard toolbar
         $toolbar = $this->_owApp->toolbar;
@@ -68,15 +62,17 @@ class IssnimporterController extends OntoWiki_Controller_Component
      */
     public function getcontractsAction()
     {
-        // tells the OntoWiki to not apply the template to this action
+        // tells OntoWiki to not apply the template to this action
         $this->_helper->viewRenderer->setNoRender();
         $this->_helper->layout->disableLayout();
 
-        if ($this->_contractsJSONData === null) {
-            $this->_setContractsJSONData();
-        }
+/*        if ($this->_owApp->selectedModel === null) {
+            $this->_response->setBody(json_encode(array()));
+        } else {*/
+            $this->_response->setBody($this->_getContractsJSONData());
+        //}
 
-        $this->_response->setBody($this->_contractsJSONData);
+
     }
 
     public function titlelistimportAction()
@@ -182,7 +178,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
             return;
         }
 
-        $modelIri = (string)$this->_model;
+        $modelIri = (string)$this->_owApp->selectedModel;
         $hash = md5(rand()) ;
         $item = $modelIri . 'resource/item/' . $hash . '/';
         $xsdDateTime = date('Y-m-d') . 'T' . date('H:i:s');
@@ -492,7 +488,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
 
     private function _import($data)
     {
-        $modelIri = (string)$this->_model;
+        $model = $this->_owApp->selectedModel;
+        $modelIri = (string)$model;
         $versioning = $this->_erfurt->getVersioning();
         // action spec for versioning
         $actionSpec = array();
@@ -503,7 +500,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         try {
             // starting action
             $versioning->startAction($actionSpec);
-            $this->_model->addMultipleStatements($data);
+            $model->addMultipleStatements($data);
             // stopping action
             $versioning->endAction();
             // Trigger Reindex
@@ -520,7 +517,13 @@ class IssnimporterController extends OntoWiki_Controller_Component
         }
     }
 
-    private function _setContractsJSONData () {
+    private function _getContractsJSONData () {
+        $model = $this->_owApp->selectedModel;
+
+        if ($model === null) {
+            return json_encode(array());
+        }
+
         $nsAMSL = 'http://vocab.ub.uni-leipzig.de/amsl/';
         $query = 'SELECT DISTINCT *  WHERE {' . PHP_EOL ;
         $query.= '{ ?s a <' . $nsAMSL  . 'AnnualContractData> . } ' . PHP_EOL;
@@ -529,7 +532,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $query.= '?s <' . EF_RDFS_LABEL   . '> ' . '?label .' . PHP_EOL;
         $query.= '}' . PHP_EOL;
 
-        $result = $this->_model->sparqlQuery($query);
+        $result = $model->sparqlQuery($query);
         // Delete duplicates -> returns an associative array
         $temp = $this->_super_unique($result);
         // Create a new non associative array
@@ -537,7 +540,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         foreach ($temp as $value) {
             $json[] = $value;
         }
-        $this->_contractsJSONData = json_encode($json);
+        return json_encode($json);
     }
 
     private function _super_unique($array)
