@@ -1,9 +1,9 @@
-Please select if the titles should belong to a license package or should be attached to the annual contract data directly.;Bitte wählen Sie, ob die Titel einem Lizenzpaket oder direkt den Vertragsjahresdaten zugeordnet werden sollen.
+Option 2: Please select if the titles should belong to a new license package or should be attached to new annual contract data directly.;Option 2: Bitte wählen Sie, ob die Titel einem neuen Lizenzpaket oder direkt neuen Vertragsjahresdaten zugeordnet werden sollen.
 New annual contract data;Neue Vertragsjahresdaten
 New license package;Neues Lizenzpaket
 Existent resource;Vorhandene Ressource
 Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISBN/ISSN (electronic), Proprietary-ID, DOI, price (without thousands seperator);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Der Aufbau der Datei wird in folgender Reihenfolge erwartet: Titel, ISBN/ISSN (print), ISBN/ISSN (elektr.), proprietäre ID, DOI, Preis (ohne Tausendertrennzeichen).
-Please search for an existent resource that should contain the contract items.;Bitte suchen Sie eine vorhandene Ressource, falls die Titel dieser angehangen werden sollen.
+Option 1: Please search for an existent resource that should contain the contract items.;Option 1: Bitte suchen Sie eine vorhandene Ressource, falls die Titel dieser angehangen werden sollen.
 A title is necessary. Furthermore at least one identifier or, in case of media without any identifiers, "NA" has to be entered into each id column.;Die Titelliste kann aus Zeitschriften, Büchern und grauer Literatur bestehen. Die Angabe eines Titels ist notwendig. Weiterhin muss entweder mindestens ein Identifier oder, für identifierlose Titel,  in allen für Identifier vorgesehen Spalten "NA" angegeben werden.
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 

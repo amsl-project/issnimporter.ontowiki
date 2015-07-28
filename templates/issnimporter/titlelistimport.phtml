@@ -8,7 +8,13 @@ $translate = OntoWiki::getInstance()->translate;
     <legend><?php echo $this->_($translate->translate('Upload list of titles from CSV file')) ?></legend>
     <div class="width49 float margin">
         <div>
-            <p class="messagebox info"><?php echo $translate->translate('Please select if the titles should belong to a license package or should be attached to the annual contract data directly.') ?></p>
+            <br class="clearall"/>
+            <p class="messagebox info"><?php echo $this->_('Option 1: Please search for an existent resource that should contain the contract items.') ?></p>
+            <div class="contracts-data">
+                <input  id="contracts-input" class="typeahead width67" type="text" value="" name="contracts-input">
+            </div>
+            <br class="clearall"/>
+            <p class="messagebox info"><?php echo $translate->translate('Option 2: Please select if the titles should belong to a new license package or should be attached to new annual contract data directly.') ?></p>
             <label for="package" class="checkboxradio"><?php echo $translate->translate('New license package') ?>
                 <input type="radio" class="radio" name="collectIn" id="package" value="package" />
             </label>
@@ -20,11 +26,6 @@ $translate = OntoWiki::getInstance()->translate;
             <label for="label-input"><?php echo $this->_('Label for contract/package information') ?></label>
             <input type="text" class="text" id="label-input" name="resourcelabel" />
             <br class="clearall"/>
-            <br class="clearall"/>
-            <p class="messagebox info"><?php echo $this->_('Please search for an existent resource that should contain the contract items.') ?></p>
-            <div class="contracts-data">
-                <input  id="contracts-input" class="typeahead width67" type="text" value="" name="contracts-input"/>
-            </div>
         </div>
         <div>
             <p class="messagebox info">
