@@ -226,7 +226,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
             'value' => $xsdDateTime
         );
 
-        $items = '';
         $errorCount = 0;
         $lineNumber = 0;
 
@@ -330,23 +329,19 @@ class IssnimporterController extends OntoWiki_Controller_Component
 
                 # If identifier were found or identifierless import go on
                 if ($itemUri !== '') {
-                    $items .= $itemUri . ' a amsl:ContractItem ;' . PHP_EOL;
                     $data[$itemUri][EF_RDF_TYPE][] = array(
                         'type'     => 'uri',
                         'value'    => $nsAmsl . 'ContractItem'
                     );
-                    $items .= '  amsl:contractItemOf ' . $mainResource . ' ;' . PHP_EOL;
                     $data[$itemUri][$nsAmsl . 'contractItemOf'][] = array(
                         'type'     => 'uri',
                         'value'    => $mainResource
                     );
-                    $items .= '  dct:created  "' . $xsdDateTime . '"^^xsd:dateTime ;' . PHP_EOL;
                     $data[$itemUri][$nsDct . 'created'][] = array(
                         'type'     => 'literal',
                         'datatype' => $nsXsd . 'dateTime',
                         'value'    => $xsdDateTime
                     );
-                    $items .= '  rdfs:label ' . '"' . $title . ' (' . $year . ')"  .' . PHP_EOL;
                     $data[$itemUri][EF_RDFS_LABEL][] = array(
                         'type'     => 'literal',
                         'value'    => $title . ' (' . $year . ')'
@@ -364,8 +359,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
                                 $value.= '.00';
                             }
                         }
-                        $items.= $itemUri . ' amsl:itemPrice "' . $value .
-                            '"^^xsd:decimal .' . PHP_EOL;
                         $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
                             'type'  => 'literal',
                             'value' => $value
@@ -393,8 +386,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         // write statements linking to found E-ISSNs
                         if (isset($eissn[0])) {
                             foreach ($eissn[0] as $value) {
-                                $items .= $itemUri . ' amsl:eissn <urn:ISSN:' .
-                                    $value . '> .' . PHP_EOL;
                                 $data[$itemUri][$nsAmsl . 'eissn'][] = array(
                                     'type' => 'uri',
                                     'value' => 'urn:ISSN:' . $value
@@ -405,8 +396,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         // write statements linking to found E-ISBNs
                         if (isset($eisbn[0])) {
                             foreach ($eisbn[0] as $value) {
-                                $items .= $itemUri . ' amsl:eisbn <urn:ISBN:' .
-                                    $value . '> .' . PHP_EOL;
                                 $data[$itemUri][$nsAmsl . 'eisbn'][] = array(
                                     'type' => 'uri',
                                     'value' => 'urn:ISBN:' . $value
@@ -417,8 +406,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         # write statements linking to found P-ISSNs
                         if (isset($pissn[0])) {
                             foreach ($pissn[0] as $value) {
-                                $items .= $itemUri . ' amsl:pissn <urn:ISSN:' .
-                                    $value . '> .' . PHP_EOL;
                                 $data[$itemUri][$nsAmsl . 'pissn'][] = array(
                                     'type' => 'uri',
                                     'value' => 'urn:ISSN:' . $value
@@ -429,8 +416,6 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         // write statements linking to found P-ISBNs
                         if (isset($pisbn[0])) {
                             foreach ($pisbn[0] as $value) {
-                                $items .= $itemUri . ' amsl:pisbn <urn:ISBN:' .
-                                    $value . '> .' . PHP_EOL;
                                 $data[$itemUri][$nsAmsl . 'pisbn'][] = array(
                                     'type' => 'uri',
                                     'value' => 'urn:ISBN:' . $value
