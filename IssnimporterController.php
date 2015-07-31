@@ -182,7 +182,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
         $modelIri = (string)$this->_owApp->selectedModel;
         $hash = md5(rand()) ;
         $item = $modelIri . 'resource/item/' . $hash . '/';
-        $xsdDateTime = date('Y-m-d') . 'T' . date('H:i:s');
+        //$xsdDateTime = date('Y-m-d') . 'T' . date('H:i:s');
 
         # set a flag for writing labels of contract/package resource
         $writeLabel = true;
@@ -220,11 +220,12 @@ class IssnimporterController extends OntoWiki_Controller_Component
             }
         }
 
+        /* excluded due to virtuoso problems
         $data[$mainResource][$nsDct . 'created'][] = array(
             'type' => 'literal',
             'datatype' => $nsXsd . 'dateTime',
             'value' => $xsdDateTime
-        );
+        );*/
 
         $errorCount = 0;
         $lineNumber = 0;
@@ -337,11 +338,12 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         'type'     => 'uri',
                         'value'    => $mainResource
                     );
+        /* excluded due to virtuoso problems
                     $data[$itemUri][$nsDct . 'created'][] = array(
                         'type'     => 'literal',
                         'datatype' => $nsXsd . 'dateTime',
                         'value'    => $xsdDateTime
-                    );
+                    );*/
                     $data[$itemUri][EF_RDFS_LABEL][] = array(
                         'type'     => 'literal',
                         'value'    => $title . ' (' . $year . ')'
