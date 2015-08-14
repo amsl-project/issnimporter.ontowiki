@@ -3,6 +3,7 @@
  * This file is part of the {@link http://amsl.technology amsl} project.
  *
  * @author Norman Radtke
+ * @author Annika Domin
  * @copyright Copyright (c) 2015, {@link http://ub.uni-leipzig.de Leipzig University Library}
  * @license http://opensource.org/licenses/gpl-license.php GNU General Public License (GPL)
  */
@@ -13,6 +14,7 @@
  * @category OntoWiki
  * @package  Extensions_Issnimporter
  * @author   Norman Radtke <radtke@informatik.uni-leipzig.de>
+ * @author   Annika Domin <domin@ub.uni-leipzig.de>
  * @author   Sebastian Tramp <mail@sebastian.tramp.name>
  */
 class IssnimporterController extends OntoWiki_Controller_Component
@@ -83,25 +85,60 @@ class IssnimporterController extends OntoWiki_Controller_Component
         if ($this->_request->isPost()) {
             $data           = array();
             $nsAmsl         = 'http://vocab.ub.uni-leipzig.de/amsl/';
+            $nsDc          = 'http://purl.org/dc/elements/1.1/';
             $nsDct          = 'http://purl.org/dc/terms/';
             $nsXsd          = 'http://www.w3.org/2001/XMLSchema#';
             $post           = $this->_request->getPost();
             $upload         = new Zend_File_Transfer();
             $filesArray     = $upload->getFileInfo();
-            $delimiter      = $post['delimiter'];
-            $enclosure      = $post['enclosure'];
             $year           = $post['validityyear'];
+            $csv_format     = $post['csv_format'];
             $label          = $post['resourcelabel'];
             $targetType     = $post['collectIn'];
             $targetResource = $post['contracts-input'];
             $regISBN        = '/\b(?:ISBN(?:: ?| ))?((?:97[89])?\d{9}[\dx])\b/i';
-            if (isset($post['title'])) {
-                if ($post['title'] === 'on') {
-                    $skipFirst = true;
-                }
-            } else {
+            $no_enclosure   =  true ;
+            $expected_min_columns = '' ;
+       
+
+
+        //Check for csv_format
+
+        if ($csv_format == '0' || '') {
+                $this->_owApp->appendErrorMessage($this->_translate->translate(
+                    'Please select a CSV format.'
+                ));
+                return;
+            } 
+
+
+
+            //csv configuration according to csv_format:
+
+            // 1 = KBART 
+            if ($csv_format == '1') {
+                $delimiter     = "\t" ; 
+                $skipFirst     = true ;
+                $expected_min_columns = '16' ;
+
+            // 2 = Simple CSV
+
+            } elseif ($csv_format =='2') {
+                $delimiter      = $post['delimiter'];
+                $enclosure      = $post['enclosure'];
+                $no_enclosure   = false ;
+                $expected_min_columns = '5';
+
+                if (isset($post['title'])) {
+                    if ($post['title'] === 'on') {
+                        $skipFirst = true;
+                    }
+                } else {
                 $skipFirst = false;
+                }
             }
+
+
 
             // Check for valid year
             if (preg_match('/[2][01]\d{2}/',$post['validityyear'],$result)) {
@@ -166,10 +203,20 @@ class IssnimporterController extends OntoWiki_Controller_Component
             $handle = fopen($file, 'r');
             $csvData = Array();
             if ($handle != FALSE) {
-                while (($line =
-                    fgetcsv($handle,600,$delimiter,$enclosure)) !== FALSE) {
-                    $csvData[] = $line;
-                }
+
+                switch ($no_enclosure) {
+                    case TRUE:
+                        while (($line = fgetcsv($handle,600,$delimiter)) !== FALSE) {
+                            $csvData[] = $line;
+                        }
+                        break;
+                    case FALSE:
+                        while (($line = fgetcsv($handle,600,$delimiter,$enclosure)) !== FALSE) {
+                            $csvData[] = $line;
+                        }
+                        break;
+                    }    
+
             } else {
                 $this->_owApp->appendErrorMessage("Could not read from CSV File");
                 return;
@@ -227,6 +274,8 @@ class IssnimporterController extends OntoWiki_Controller_Component
             'value' => $xsdDateTime
         );*/
 
+
+
         $errorCount = 0;
         $lineNumber = 0;
 
@@ -234,21 +283,25 @@ class IssnimporterController extends OntoWiki_Controller_Component
         // iterate through CSV lines
         $ignoredLines = array();
         $skipped = false;
-        foreach ($csvData as $csvLine) {
+        foreach ($csvData as $csvColumn) {
             $lineNumber++;
             if ($skipFirst === true) {
                 $skipped = true;
                 $skipFirst = false;
                 continue;
             }
-            $proprietaryID = '';
-            $doi = '';
             $foundEISSN = false;
             $foundPISSN = false;
             $itemUri    = '';
-            $columnCount = count($csvLine);
-            if ($columnCount >= 6) {
-                $title = trim($csvLine[0]);
+                                 
+
+
+
+
+            $columnCount = count($csvColumn);
+            if ($columnCount >= $expected_min_columns) {
+
+                $title = trim($csvColumn[0]);
                 if ($title === '') {
                     $errorCount++;
                     $msg = $this->_translate->translate('Row');
@@ -258,78 +311,15 @@ class IssnimporterController extends OntoWiki_Controller_Component
                     continue;
                 }
 
-                // Find identifiers
-
-                // check if title is not identifierless
-                if (!($csvLine[1] === 'NA' && $csvLine[2] === 'NA' &&
-                    $csvLine[3] === 'NA' && $csvLine[4] === 'NA')) {
-
-                    // Start identifier search
-                    $skipIdentifier = false;
-
-                    // Search for Proprietary ID
-                    if ($csvLine[3] !== '') {
-                        $itemUri = $item . $lineNumber;
-                        $proprietaryID = $csvLine[3];
-                    }
-
-                    // Search for DOI
-                    if (isset($csvLine[4]) && $csvLine[4] !== '') {
-                        if (substr($csvLine[4], 0, 3) === '10.') {
-                            $itemUri = $item . $lineNumber;
-                            $doi = $csvLine[4];
-                        }
-                    }
-
-                    # Search for E-ISSN
-                    if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[2], $eissn)) {
-                        # Found an EISSN, create URI and write first statemntes
-                        $foundEISSN = true;
-                        $itemUri = $item . $lineNumber;
-                    } else {
-                        $eissn = null;
-                    }
-
-                    # Search for P-ISSN
-                    if (preg_match_all('/\d{4}\-\d{3}[\dxX]/', $csvLine[1], $pissn)) {
-                        $foundPISSN = true;
-                        $itemUri = $item . $lineNumber;
-                    } else {
-                        $pissn = null;
-                    }
-
-                    # Search for E-ISBN
-                    if (preg_match_all($regISBN, str_replace('-', '', $csvLine[2]), $eisbn)) {
-                        $itemUri = $item . $lineNumber;
-                        // it is possible to match a ISSN expression within a ISBN string
-                        // if this is the case reset the ISSN values
-                        if ($foundEISSN === true) {
-                            $eissn = null;
-                        }
-                    } else {
-                        $eisbn = null;
-                    }
-
-                    # Search for P-ISBN
-                    if (preg_match_all($regISBN, str_replace('-', '', $csvLine[1]), $pisbn)) {
-                        $itemUri = $item . $lineNumber;
-                        // it is possible to match a ISSN expression within a ISBN string
-                        // if this is the case reset the ISSN values
-                        if ($foundPISSN === true) {
-                            $pissn = null;
-                        }
-                    } else {
-                        $pisbn = null;
-                    }
-                } else {
-                    // all identifier values == 'NA' => import without identifier (grey literature)
-                    $skipIdentifier = true;
-                    $itemUri = $item . $lineNumber;
-                }
+                $itemUri = $item . $lineNumber;
 
 
-                # If identifier were found or identifierless import go on
-                if ($itemUri !== '') {
+            // START IMPORT 
+            
+              
+
+             // GENERAL TRIPLES    
+                    
                     $data[$itemUri][EF_RDF_TYPE][] = array(
                         'type'     => 'uri',
                         'value'    => $nsAmsl . 'ContractItem'
@@ -338,7 +328,7 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         'type'     => 'uri',
                         'value'    => $mainResource
                     );
-        /* excluded due to virtuoso problems
+                    /* excluded due to virtuoso problems
                     $data[$itemUri][$nsDct . 'created'][] = array(
                         'type'     => 'literal',
                         'datatype' => $nsXsd . 'dateTime',
@@ -349,90 +339,18 @@ class IssnimporterController extends OntoWiki_Controller_Component
                         'value'    => $title . ' (' . $year . ')'
                     );
 
-                    if (preg_match('/\d+(?:[\.,]\d+)?/',$csvLine[5],$price)) {
-                        $value = $price[0];
-                        # Check if price contains comma and replace with
-                        # dot if so
-                        if (strpos($value,',')!==FALSE) {
-                            $value = str_replace(',','.',$value);
-                            # Check for missing dot and build a valid price
-                        } else {
-                            if (strpos($value,'.')===FALSE) {
-                                $value.= '.00';
-                            }
-                        }
-                        $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
-                            'type'  => 'literal',
-                            'value' => $value
-                        );
+            // Include various import actions
+
+                    // 1 = KBART
+                    if($csv_format == '1') {
+                        require('ImportKBART.php') ;
+                    // 2 = Simple CSV
+                    } elseif ($csv_format == '2') {
+                        require('ImportSimpleCSV.php') ;
                     }
 
-                    if ($skipIdentifier === false) {
-                        // write statement for proprietary ID
-                        if ($proprietaryID !== '') {
-                            $data[$itemUri][$nsAmsl . 'proprietaryID'][] = array(
-                                'type' => 'literal',
-                                'value' => $proprietaryID
-                            );
-                        }
+ 
 
-                        // write statement for DOI
-                        if ($doi !== '' && Erfurt_Uri::check('http://doi.org/' . $doi)
-                        ) {
-                            $data[$itemUri][$nsAmsl . 'doi'][] = array(
-                                'type' => 'uri',
-                                'value' => 'http://doi.org/' . $doi
-                            );
-                        }
-
-                        // write statements linking to found E-ISSNs
-                        if (isset($eissn[0])) {
-                            foreach ($eissn[0] as $value) {
-                                $data[$itemUri][$nsAmsl . 'eissn'][] = array(
-                                    'type' => 'uri',
-                                    'value' => 'urn:ISSN:' . $value
-                                );
-                            }
-                        }
-
-                        // write statements linking to found E-ISBNs
-                        if (isset($eisbn[0])) {
-                            foreach ($eisbn[0] as $value) {
-                                $data[$itemUri][$nsAmsl . 'eisbn'][] = array(
-                                    'type' => 'uri',
-                                    'value' => 'urn:ISBN:' . $value
-                                );
-                            }
-                        }
-
-                        # write statements linking to found P-ISSNs
-                        if (isset($pissn[0])) {
-                            foreach ($pissn[0] as $value) {
-                                $data[$itemUri][$nsAmsl . 'pissn'][] = array(
-                                    'type' => 'uri',
-                                    'value' => 'urn:ISSN:' . $value
-                                );
-                            }
-                        }
-
-                        // write statements linking to found P-ISBNs
-                        if (isset($pisbn[0])) {
-                            foreach ($pisbn[0] as $value) {
-                                $data[$itemUri][$nsAmsl . 'pisbn'][] = array(
-                                    'type' => 'uri',
-                                    'value' => 'urn:ISBN:' . $value
-                                );
-                            }
-                        }
-                    }
-                } else {
-                    $errorCount++;
-                    $msg = $this->_translate->translate('Row');
-                    $msg.= ' ' . $lineNumber . ' ';
-                    $msg.= $this->_translate->translate('ignored: No identifiers were found.');
-                    $ignoredLines[] = $msg;
-                    continue;
-                }
             } else {
                 $errorCount++;
                 $msg = $this->_translate->translate('Row');

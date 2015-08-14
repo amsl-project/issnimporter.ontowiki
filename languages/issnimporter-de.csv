@@ -1,24 +1,29 @@
-Option 2: Please select if the titles should belong to a new license package or should be attached to new annual contract data directly.;Option 2: Bitte wählen Sie, ob die Titel einem neuen Lizenzpaket oder direkt neuen Vertragsjahresdaten zugeordnet werden sollen.
+Tries to generate triples out of a csv file containing titles, identifiers and (optional) price;Import einer Titelliste (Zeitschriften, Bücher, graue Literatur) mit Hilfe einer CSV-Datei
+Import a title list;Titelliste importieren
+Option 1 - Linking with existent resource: Please search for a resource the contract items should be linked with.;Option 1 – Verbinden mit vorhandener Ressource: Bitte suchen Sie nach einer Ressource, mit der die Titel verbunden werden sollen.
+Existent resource;Vorhandene Ressource
+Option 2 - Linking with new resource: Please select if the titles should be linked to a new license package or directly to new set of annual contract data.;Option 2 – Verbinden mit neuer Ressource: Bitte wählen Sie, ob die Titel einem neuen Lizenzpaket oder direkt mit neuen Vertragsjahresdaten verbunden werden sollen.
 New annual contract data;Neue Vertragsjahresdaten
 New license package;Neues Lizenzpaket
-Existent resource;Vorhandene Ressource
-Please select a UTF-8 encoded CSV File to import. Expected order of columns will be: Title, ISBN/ISSN (print), ISBN/ISSN (electronic), Proprietary-ID, DOI, price (without thousands seperator);Bitte wählen Sie die CSV-Datei (Zeichenkodierung: UTF-8) aus. Der Aufbau der Datei wird in folgender Reihenfolge erwartet: Titel, ISBN/ISSN (print), ISBN/ISSN (elektr.), proprietäre ID, DOI, Preis (ohne Tausendertrennzeichen).
-Option 1: Please search for an existent resource that should contain the contract items.;Option 1: Bitte suchen Sie eine vorhandene Ressource, falls die Titel dieser angehangen werden sollen.
-A title is necessary. Furthermore at least one identifier or, in case of media without any identifiers, "NA" has to be entered into each id column.;Die Titelliste kann aus Zeitschriften, Büchern und grauer Literatur bestehen. Die Angabe eines Titels ist notwendig. Weiterhin muss entweder mindestens ein Identifier oder, für identifierlose Titel,  in allen für Identifier vorgesehen Spalten "NA" angegeben werden.
+Label for contract/package information;Bezeichnung für Vertrags- bzw. Paketinformationen
+Please select a UTF-8 encoded CSV file to upload.;Bitte wählen Sie eine UTF-8-kodierte CSV-Datei zum Upload aus.
+Validity year;Gültigkeitsjahr
+CSV file format;Format der CSV-Datei
+-Please choose-;-Bitte wählen-
+KBART;KBART
+Simple CSV;Einfaches CSV
+The selected KBART file may be enhanced with a 17th column containing a title price.;Die ausgewählte KBART-Datei kann durch eine 17. Spalte erweitert werden, die den Titelpreis enthält.
+Please configure your csv import settings.;Bitte konfigurieren Sie Ihre CSV-Importeinstellungen.
+The columns need to be arranged in the following order: Title [required], print identifier [ISBN or ISSN, multiple values possible], online identifier [dito], proprietary identifier, title price [without thousands separator]. ;Die Spalten müssen wie folgt angeordnet sein: Titel [notwendig], P-ISBN bzw. P-ISSN [mehrfache Werte möglich], E-ISBN bzw. E-ISSN [dito], Proprietäre ID, Titelpreis [ohne Tausendertrennzeichen]
+CSV contains title row;Erste Zeile enthält Überschriften
 Field delimiter;Trennzeichen für Datenfelder
 Field enclosure;Textbegrenzungszeichen 
-Label for contract/package information;Bezeichnung für Vertrags- bzw. Paketinformationen
-Validity year;Gültigkeitsjahr
-CSV import settings;CSV-Einstellungen
-Upload list of titles from CSV file;Eine Titelliste aus einer CSV-Datei importieren
-Import a titlelist with csv upload;Eine Titelliste aus einer CSV-Datei importieren
-The value for existent resource is empty or wrong. Please check the value and try again.;Bitte überprüfen Sie den Wert für "Vorhandene Ressource".
-CSV contains title row;Erste Zeile enthält Überschriften
-Tries to generate triples out of a csv file containing titles, identifiers and (optional) price;Import einer Titelliste (Zeitschriften, Bücher, graue Literatur) mit Hilfe einer CSV-Datei
 Row;Zeile
 ignored: Title is missing.;ignoriert: Fehlender Titel.
 ignored: No identifiers were found.;ignoriert: Es konnten keine Identifier gefunden werden.
 ignored: Missing columns or wrong seperators.;Zu wenig Spalten oder falsches Trennzeichen.
 Nothing was imported;Keine Daten importiert
 Some data not imported;Import unvollständig
-The file needs to be UTF-8 encoded. Please change encoding and retry.;Die Datei verwendet eine andere Zeichenkodierung als "UTF-8" und kann nicht importiert werden.
+The value for existent resource is empty or wrong. Please check the value and try again.;"Bitte überprüfen Sie den Wert für ""Vorhandene Ressource""."
+The file needs to be UTF-8 encoded. Please change encoding and retry.;"Die Datei verwendet eine andere Zeichenkodierung als ""UTF-8"" und kann nicht importiert werden."
+Please select a CSV format.;Bitte wählen Sie ein CSV-Format aus.

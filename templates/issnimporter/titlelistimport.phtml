@@ -5,16 +5,16 @@
 $translate = OntoWiki::getInstance()->translate;
 ?>
 <fieldset class="activeForm" id="importdata">
-    <legend><?php echo $this->_($translate->translate('Upload list of titles from CSV file')) ?></legend>
+    <legend><?php echo $this->_($translate->translate('Import a title list')) ?></legend>
     <div class="width49 float margin">
         <div>
             <br class="clearall"/>
-            <p class="messagebox info"><?php echo $this->_('Option 1: Please search for an existent resource that should contain the contract items.') ?></p>
+            <p class="messagebox info"><?php echo $this->_('Option 1 - Linking with existent resource: Please search for a resource the contract items should be linked with.') ?></p>
             <div class="contracts-data">
                 <input  id="contracts-input" class="typeahead width67" type="text" value="" name="contracts-input">
             </div>
             <br class="clearall"/>
-            <p class="messagebox info"><?php echo $translate->translate('Option 2: Please select if the titles should belong to a new license package or should be attached to new annual contract data directly.') ?></p>
+            <p class="messagebox info"><?php echo $translate->translate('Option 2 - Linking with new resource: Please select if the titles should be linked to a new license package or directly to new set of annual contract data.') ?></p>
             <label for="package" class="checkboxradio"><?php echo $translate->translate('New license package') ?>
                 <input type="radio" class="radio" name="collectIn" id="package" value="package" />
             </label>
@@ -28,17 +28,10 @@ $translate = OntoWiki::getInstance()->translate;
             <br class="clearall"/>
         </div>
         <div>
+            <br class="clearall"/>
+            <br class="clearall"/>
             <p class="messagebox info">
-                <?php $msg = 'Please select a UTF-8 encoded CSV File to import.' ?>
-                <?php $msg.= ' Expected order of columns will be: Title, ISBN/ISSN (print),' ?>
-                <?php $msg.= ' ISBN/ISSN (electronic), Proprietary-ID, DOI, price (without' ?>
-                <?php $msg.= ' thousands seperator)' ?>
-                <?php echo $this->_($translate->translate($msg)) ?>
-            </p>
-            <p class="messagebox info">
-                <?php $msg = 'A title is necessary. Furthermore at least one identifier or,' ?>
-                <?php $msg.= ' in case of media without any identifiers, "NA" has to be' ?>
-                <?php $msg.= ' entered into each id column.' ?>
+                <?php $msg = 'Please select a UTF-8 encoded CSV file to upload.' ?>
                 <?php echo $this->_($translate->translate($msg)) ?>
             </p>
         </div>
@@ -56,16 +49,73 @@ $translate = OntoWiki::getInstance()->translate;
             <input type="text" class="text" size="4" maxlength="4" value='<?php echo date("Y")+1 ?>' id="year-input" name="validityyear" />
             <br class="clearall"/>
         </br>
-            <p class="messagebox info"><?php echo $this->_('CSV import settings') ?></p>
-            <label for="hasTitle"><?php echo $this->_($translate->translate('CSV contains title row')) ?></label>
-            <input type="checkbox" checked id="hasTitle" name="title" />
+        </div>
+
+
+
+        <div>
             <br class="clearall"/>
-            <label for="delimiter-input"><?php echo $this->_($translate->translate('Field delimiter')) ?></label>
-            <input type="text" class="text" size="1" maxlength="1" value=";" class="text" id="delimiter-input" name="delimiter" />
-            <br class="clearall"/>
-            <label for="enclosure-input"><?php echo $this->_($translate->translate('Field enclosure')) ?></label>
-            <input type="text" class="text" size="1" maxlength="1" value='"' id="enclosure-input" name="enclosure" />
+            <label for="csv_format"><?php echo $this->_('CSV file format') ?></label>
+            <select name="csv_format" id="csv_format" size="1" onchange="javascript: showDiv(document.getElementById('csv_format').value);">
+                <option value="0"><?php echo $translate->translate('-Please choose-') ?></option>
+                <option value="1"><?php echo $translate->translate('KBART') ?></option> 
+                <option value="2"><?php echo $translate->translate('Simple CSV') ?></option> 
+            </select>
             <br class="clearall"/>
         </div>
+
+
+         <div id="1" style="display: none;">
+
+            <br class="clearall"/>
+            <p class="messagebox info"><?php echo $this->_('The selected KBART file may be enhanced with a 17th column containing a title price.') ?></p>
+            <br class="clearall"/>
+        </div>
+
+
+
+
+        <div id="2" style="display: none;">
+
+            <br class="clearall"/>
+            <p class="messagebox info"><?php echo $this->_('Please configure your csv import settings.') ?></p>
+
+            <p class="messagebox info">
+                <?php $msg = 'The columns need to be arranged in the following order: ' ?>
+                <?php $msg.= 'Title [required], print identifier [ISBN or ISSN, multiple values possible], online identifier [dito], proprietary identifier, title price [without thousands separator]. ' ?>
+                <?php echo $this->_($translate->translate($msg)) ?>
+            </p>
+                <label for="hasTitle"><?php echo $this->_($translate->translate('CSV contains title row')) ?></label>
+                <input type="checkbox" checked id="hasTitle" name="title" />
+            <br class="clearall"/>
+                <label for="delimiter-input"><?php echo $this->_($translate->translate('Field delimiter')) ?></label>
+                <input type="text" class="text" size="1" maxlength="1" value=";" class="text" id="delimiter-input" name="delimiter" />
+            <br class="clearall"/>
+                <label for="enclosure-input"><?php echo $this->_($translate->translate('Field enclosure')) ?></label>
+                <input type="text" class="text" size="1" maxlength="1" value='"' id="enclosure-input" name="enclosure" />
+            <br class="clearall"/>
+        </div>
+
+
+        <!-- Show the correct import settings for each csv format -->
+        <script type="text/javascript">
+
+
+                function showDiv(id) {
+                                 
+                    for (var i = 1; i < 3; i++) {
+                         if (i == id) {
+                            document.getElementById(i).style.display = 'block';
+                         } else {
+                             document.getElementById(i).style.display = 'none';
+                        }
+                    }
+
+                 }   
+
+
+        </script>
     </div>
 </fieldset>
+
+
