@@ -388,22 +388,25 @@
 
 
             // COLUMN 16: item price
-                    if (preg_match('/\d+(?:[\.,]\d{1,2})?/',$csvColumn[16],$price)) {
-                        $value = $price[0];
-                        # Check if price contains comma and replace with
-                        # dot if so
-                        if (strpos($value,',')!==FALSE) {
-                            $value = str_replace(',','.',$value);
-                            # Check for missing dot and build a valid price
-                        } else {
-                            if (strpos($value,'.')===FALSE) {
-                                $value.= '.00';
+                    if (count($csvColumn) >= 17) {
+                   
+                        if (preg_match('/\d+(?:[\.,]\d{1,2})?/',$csvColumn[16],$price)) {
+                            $value = $price[0];
+                            # Check if price contains comma and replace with
+                            # dot if so
+                            if (strpos($value,',')!==FALSE) {
+                                $value = str_replace(',','.',$value);
+                                # Check for missing dot and build a valid price
+                            } else {
+                                if (strpos($value,'.')===FALSE) {
+                                    $value.= '.00';
+                                }
                             }
+                            $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
+                                'type'  => 'literal',
+                                'value' => $value
+                            );
                         }
-                        $data[$itemUri][$nsAmsl . 'itemPrice'][] = array(
-                            'type'  => 'literal',
-                            'value' => $value
-                        );
-                    }
+                    }   
 
             // END IMPORT
