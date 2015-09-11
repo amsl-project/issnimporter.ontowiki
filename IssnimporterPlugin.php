@@ -36,8 +36,7 @@ class IssnimporterPlugin extends OntoWiki_Plugin
                 'controller' => 'issnimporter',
                 'action' => 'titlelistimport',
                 'label' => $translate->translate('Import a titlelist with csv upload'),
-                'description' => 'Tries to generate triples out of a csv file containing ' .
-                    ' titles, identifiers and (optional) price'
+                'description' => 'Imports a CSV file title list of different formatting (e.g. KBART).'
             )
         );
 
