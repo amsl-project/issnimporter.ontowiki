@@ -36,13 +36,6 @@ class IssnimporterHelper extends OntoWiki_Component_Helper
             $this->view = clone $viewRenderer->view;
             $this->view->clearVars();
         }
-
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/issnimporter/templates/issnimporter/js/typeahead.bundle.js');
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/issnimporter/templates/issnimporter/js/handlebars.js');
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/issnimporter/templates/issnimporter/js/search.js');
-        $this->view->headScript()->appendFile($this->_config->urlBase . 'extensions/themes/silverblue/scripts/libraries/jquery-ui.js');
-        $this->view->headLink()->appendStylesheet($this->_config->urlBase . 'extensions/issnimporter/templates/issnimporter/issnimporter.css');
-        $this->view->headLink()->appendStylesheet($this->_config->urlBase . 'extensions/issnimporter/templates/issnimporter/hint.min.css');
     }
 }
 

@@ -3,7 +3,14 @@
  * OntoWiki rdf upload import import template
  */
 $translate = OntoWiki::getInstance()->translate;
+$urlBase = OntoWiki::getInstance()->getUrlBase();
 ?>
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/issnimporter/templates/issnimporter/js/typeahead.bundle.js')?>"></script>
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/issnimporter/templates/issnimporter/js/handlebars.js')?>"></script>
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/issnimporter/templates/issnimporter/js/search.js')?>"></script>
+<script type="text/javascript" src="<?php echo ($urlBase . 'extensions/themes/silverblue/scripts/libraries/jquery-ui.js')?>"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo ($urlBase . 'extensions/issnimporter/templates/issnimporter/issnimporter.css')?>">
+<link rel="stylesheet" type="text/css" href="<?php echo ($urlBase . 'extensions/issnimporter/templates/issnimporter/hint.min.css')?>">
 <fieldset class="activeForm" id="importdata">
     <legend><?php echo $this->_($translate->translate('Import a title list')) ?></legend>
     <div class="width49 float margin">
